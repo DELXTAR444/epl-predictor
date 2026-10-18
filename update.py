@@ -8,7 +8,7 @@ def get(u):
     return json.load(urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent':'Mozilla/5.0'}),timeout=30))
 y0=TODAY.year if TODAY.month>=7 else TODAY.year-1
 SEASONS=[f'{y}-{str(y+1)[2:]}' for y in range(y0-7,y0+1)]
-M=[];FX=[]
+M=[];FX=[];KO={}
 for s in SEASONS:
     try:j=get(f'https://raw.githubusercontent.com/openfootball/football.json/master/{s}/en.1.json')
     except Exception as e:print('skip',s,e);continue
@@ -43,7 +43,7 @@ try:
             if not f.get('kickoff_time'):continue
             d=dt.date.fromisoformat(f['kickoff_time'][:10]);h,a=tmap[f['team_h']],tmap[f['team_a']]
             if (f.get('finished') or f.get('finished_provisional')) and f['team_h_score'] is not None:M.append((d,h,a,f['team_h_score'],f['team_a_score']))
-            else:FX.append((d,h,a))
+            else:FX.append((d,h,a));KO[(d,h,a)]=f['kickoff_time']
         for t in bs['teams']:
             P=[e for e in bs['elements'] if e['team']==t['id'] and e['status']!='u']
             def share(types):
@@ -97,18 +97,28 @@ A,Dd,H=fit(M,TODAY)
 LP=DATA+'/predictions.json';log=json.load(open(LP)) if os.path.exists(LP) else {}
 for d,h,a in FX:
     k=f'{d}|{h}|{a}'
-    if d>=TODAY and d<=TODAY+dt.timedelta(10) and (d>TODAY or k not in log):
+    if d>=TODAY and d<=TODAY+dt.timedelta(6) and (d>TODAY or k not in log):
         log[k]=dict(d=str(d),h=h,a=a,b=pr(A,Dd,H,h,a),i=pr(A,Dd,H,h,a,INJ) if inj_ok else None)
 json.dump(log,open(LP,'w'),ensure_ascii=False,indent=0)
-res={f'{d}|{h}|{a}':(x,y) for d,h,a,x,y in M};hist=[];s=dict(n=0,b=0,i=0,eb=0,ei=0)
+res={f'{d}|{h}|{a}':(x,y) for d,h,a,x,y in M};hist=[];s=dict(n=0,b=0,i=0,ni=0,eb=0,ei=0)
 for k,v in sorted(log.items(),reverse=True):
     if k in res:
         x,y=res[k];r=res3(x,y);s['n']+=1;s['b']+=pick(v['b'])==r;s['eb']+=tuple(v['b']['s'])==(x,y)
-        if v['i']:s['i']+=pick(v['i'])==r;s['ei']+=tuple(v['i']['s'])==(x,y)
-        hist.append(dict(d=v['d'],h=v['h'],a=v['a'],x=x,y=y,b=v['b']['s'],i=v['i']['s'] if v['i'] else None,okb=pick(v['b'])==r,oki=bool(v['i']) and pick(v['i'])==r))
+        if v['i']:s['ni']+=1;s['i']+=pick(v['i'])==r;s['ei']+=tuple(v['i']['s'])==(x,y)
+        hist.append(dict(d=v['d'],h=v['h'],a=v['a'],x=x,y=y,b=v['b']['s'],i=v['i']['s'] if v['i'] else None,okb=pick(v['b'])==r,oki=bool(v['i']) and pick(v['i'])==r,pb=pick(v['b']),pi=pick(v['i']) if v['i'] else None,r=r))
 T=sorted(t for t in CANON if t in {h for _,h,_ in FX}|{a for _,_,a in FX})
-D=dict(updated=str(TODAY),last=str(M[-1][0]),n=len(M),seasons=SEASONS,inj_ok=inj_ok,teams=T,H=round(H,3),
+TB={t:[0]*6 for t in T}
+for d,h,a,x,y in M:
+    if d<dt.date(y0,7,1):continue
+    for t,gf,ga in((h,x,y),(a,y,x)):
+        r=TB.setdefault(t,[0]*6);r[0]+=1;r[4]+=gf;r[5]+=ga
+        if gf>ga:r[1]+=1
+        elif gf==ga:r[2]+=1
+        else:r[3]+=1
+table=sorted(([t,r[0],r[1],r[2],r[3],r[4],r[5],r[4]-r[5],r[1]*3+r[2]] for t,r in TB.items() if t in T),key=lambda z:(-z[8],-z[7],-z[5]))
+NOW=os.environ['FAKE_TODAY']+' 00:00' if os.environ.get('FAKE_TODAY') else dt.datetime.now(dt.timezone(dt.timedelta(hours=7))).strftime('%Y-%m-%d %H:%M')
+D=dict(updated=str(TODAY),updated_at=NOW,table=table,last=str(M[-1][0]),n=len(M),seasons=SEASONS,inj_ok=inj_ok,teams=T,H=round(H,3),
     att={t:round(A.get(t,1),3) for t in T},**{'def':{t:round(Dd.get(t,1),3) for t in T}},inj=INJ,
-    fx=[[str(d),h,a] for d,h,a in FX if TODAY<=d<=TODAY+dt.timedelta(90)],bt=bt,acc=s,hist=hist[:40])
+    fx=[[str(d),h,a,KO.get((d,h,a),'')] for d,h,a in FX if TODAY<=d<=TODAY+dt.timedelta(6)],bt=bt,acc=s,hist=hist[:40])
 json.dump(D,open(DOCS+'/data.json','w'),ensure_ascii=False,separators=(',',':'))
 print('ok',bt,s)
