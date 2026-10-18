@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><title>EPL ทายสกอร์</title>
+<style>
+:root{--bg:#f6f5fb;--fg:#1a1a1a;--mut:#6b6b76;--card:#fff;--ac:#6d28d9;--bd:#e4e2ee}
+@media(prefers-color-scheme:dark){:root{--bg:#0f0f13;--fg:#eee;--mut:#9a9aa6;--card:#1a1a20;--ac:#a78bfa;--bd:#2a2a33}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,"Noto Sans Thai",sans-serif;padding:16px 16px 90px;max-width:520px;margin:auto}
+h1{font-size:21px;margin:0 0 2px}.m{color:var(--mut);font-size:12.5px;line-height:1.6}.d{font-weight:600;font-size:13px;color:var(--ac);margin:16px 0 8px}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:10px}
+.row{display:flex;align-items:center;gap:8px}.t{flex:1;font-weight:600;font-size:15px}.t.r{text-align:right}.sc{font-size:26px;font-weight:800;min-width:78px;text-align:center;color:var(--ac)}
+.bar{display:flex;height:8px;border-radius:6px;overflow:hidden;margin:10px 0 6px}.lg{display:flex;justify-content:space-between;font-size:12px;color:var(--mut)}
+select,button.b{width:100%;padding:12px;font-size:16px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--fg);margin-bottom:10px}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0)}
+nav button{flex:1;border:0;background:none;color:var(--mut);padding:12px 0;font-size:13px}nav button.on{color:var(--ac);font-weight:700}
+.k{display:flex;justify-content:space-between;padding:6px 0;font-size:14px;border-bottom:1px solid var(--bd)}
+label{font-size:14px;display:block;margin:8px 0}
+</style></head><body><h1>⚽ EPL ทายสกอร์</h1><div class="m" id="info">กำลังโหลด…</div><div id="app"></div>
+<nav id="nav"></nav>
+<script>
+let D,tab='fx',wk=0,inj=true;const $=s=>document.querySelector(s);
+const nm=t=>t.replace(/ (AFC|FC)$/,'').replace(/^AFC /,'');const pct=x=>Math.round(x*100)+'%';
+const STAR=0.55;const star=p=>Math.max(p.w,p.d,p.l)>=STAR?'<div style="font-size:15px;line-height:1">⭐</div>':'';
+const fa=k=>{let r=1;for(let i=2;i<=k;i++)r*=i;return r};
+function pr(h,a,u){let lh=(D.att[h]||1)*(D.def[a]||1)*D.H,la=(D.att[a]||1)*(D.def[h]||1);
+ if(u&&D.inj_ok&&D.inj[h]&&D.inj[a]){lh*=D.inj[h].attf*D.inj[a].deff;la*=D.inj[a].attf*D.inj[h].deff}
+ let w=0,d=0,l=0,b=[0,0,-1];for(let i=0;i<10;i++)for(let j=0;j<10;j++){const p=Math.exp(-lh-la)*lh**i*la**j/fa(i)/fa(j);if(p>b[2])b=[i,j,p];if(i>j)w+=p;else if(i==j)d+=p;else l+=p}
+ const t=w+d+l;return{w:w/t,d:d/t,l:l/t,b,lh,la,t}}
+const fmt=d=>new Date(d+'T00:00:00').toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'short'});
+function bar(p){return`<div class="bar"><div style="width:${p.w*100}%;background:#16a34a"></div><div style="width:${p.d*100}%;background:#9ca3af"></div><div style="width:${p.l*100}%;background:#dc2626"></div></div><div class="lg"><span>เหย้า ${pct(p.w)}</span><span>เสมอ ${pct(p.d)}</span><span>เยือน ${pct(p.l)}</span></div>`}
+const ij=t=>{const i=D.inj[t];return i&&i.players.length?`<div class="m">🤕 ${nm(t)}: ${i.players.slice(0,3).map(x=>x.n).join(', ')}</div>`:''};
+function fxTab(){const F=D.fx;if(!F.length)return'<div class="c">ยังไม่มีตารางแข่งใหม่</div>';
+ const s=new Date(F[0][0]+'T00:00:00');s.setDate(s.getDate()+7*wk);const e=new Date(s);e.setDate(e.getDate()+7);
+ let last='',o='<div class="m" style="margin-top:8px">⭐ = โมเดลมั่นใจ (ผลใดผลหนึ่งมีโอกาสเกิน '+Math.round(STAR*100)+'%)</div>'+(D.inj_ok?`<label><input type="checkbox" ${inj?'checked':''} onchange="inj=this.checked;render()"> ปรับตามตัวเจ็บ</label>`:'<div class="m">⚠️ ยังไม่ได้ข้อมูลตัวเจ็บ (FPL ดึงไม่ได้) ใช้สถิติล้วน</div>');
+ for(const[d,h,a]of F){const D0=new Date(d+'T00:00:00');if(D0<s||D0>=e)continue;if(d!==last){last=d;o+=`<div class="d">${fmt(d)}</div>`}
+  const p=pr(h,a,inj);o+=`<div class="c"><div class="row"><div class="t">${nm(h)}</div><div class="sc">${star(p)}${p.b[0]} - ${p.b[1]}</div><div class="t r">${nm(a)}</div></div>${bar(p)}${inj&&D.inj_ok?ij(h)+ij(a):''}</div>`}
+ if(F.some(x=>new Date(x[0]+'T00:00:00')>=e))o+='<button class="b" onclick="wk++;render();scrollTo(0,0)">ดูสัปดาห์ถัดไป ›</button>';
+ if(wk)o+='<button class="b" onclick="wk--;render();scrollTo(0,0)">‹ สัปดาห์ก่อนหน้า</button>';return o}
+function playTab(){const o=D.teams.map(t=>`<option>${t}</option>`).join('');
+ return`<div class="d">เลือกสองทีมเอง</div><select id="ph" onchange="pl()">${o}</select><select id="pa" onchange="pl()">${o}</select><div id="pr"></div>`}
+function pl(){const h=$('#ph').value,a=$('#pa').value;if(h===a){$('#pr').innerHTML='<div class="c">เลือกคนละทีมครับ</div>';return}
+ const p=pr(h,a,inj);$('#pr').innerHTML=`<div class="c"><div class="row"><div class="t">${nm(h)}</div><div class="sc">${star(p)}${p.b[0]} - ${p.b[1]}</div><div class="t r">${nm(a)}</div></div>${bar(p)}<div class="m" style="margin-top:6px">คาดประตู ${p.lh.toFixed(2)} - ${p.la.toFixed(2)} · สกอร์นี้เกิดขึ้น ${(p.b[2]/p.t*100).toFixed(1)}%</div></div>`}
+function teamsTab(){const T=[...D.teams].sort((a,b)=>D.att[b]/D.def[b]-D.att[a]/D.def[a]);
+ return`<div class="d">เรียงตามพลังรวม (บุก ÷ รับ) · บุกยิ่งมากยิ่งดี รับยิ่งน้อยยิ่งดี</div>`+T.map((t,i)=>`<div class="c"><div class="row"><b style="width:24px">${i+1}</b><div class="t">${nm(t)}</div><div class="m">บุก ${D.att[t].toFixed(2)} · รับ ${D.def[t].toFixed(2)}</div></div>${ij(t)}</div>`).join('')}
+function accTab(){const a=D.acc,b=D.bt;let o=`<div class="c"><b>Backtest</b> (ทาย ${b.n} นัดที่ไม่เคยเห็น)<div class="k"><span>ผลแพ้/เสมอ/ชนะถูก</span><b>${b.acc}%</b></div><div class="k"><span>ทายเจ้าบ้านชนะทุกนัด</span><b>${b.base}%</b></div><div class="k"><span>สกอร์เป๊ะ</span><b>${b.exact}%</b></div></div>`;
+ o+=`<div class="c"><b>ผลทายจริงของแอปนี้</b>`;if(!a.n)o+='<div class="m">ยังไม่มีแมตช์ที่ทายแล้วแข่งจบ รออีกสัปดาห์ครับ</div>';
+ else o+=`<div class="k"><span>จำนวนนัดที่ตรวจแล้ว</span><b>${a.n}</b></div><div class="k"><span>ถูก (สถิติล้วน)</span><b>${Math.round(a.b/a.n*100)}%</b></div>${D.inj_ok?`<div class="k"><span>ถูก (รวมตัวเจ็บ)</span><b>${Math.round(a.i/a.n*100)}%</b></div>`:''}<div class="k"><span>สกอร์เป๊ะ</span><b>${Math.round(a.eb/a.n*100)}%</b></div>`;
+ o+='</div>';return o+D.hist.map(h=>`<div class="c"><div class="m">${h.d}</div><div class="row"><div class="t">${nm(h.h)}</div><div class="sc" style="font-size:20px">${h.x}-${h.y}</div><div class="t r">${nm(h.a)}</div></div><div class="m">ทาย ${h.b[0]}-${h.b[1]} ${h.okb?'✅':'❌'}${h.i?` · รวมตัวเจ็บ ${h.i[0]}-${h.i[1]} ${h.oki?'✅':'❌'}`:''}</div></div>`).join('')}
+const TABS={fx:['📅 แมตช์',fxTab],play:['🎮 ลองเล่น',playTab],teams:['📊 ทีม',teamsTab],acc:['🎯 ความแม่น',accTab]};
+function render(){$('#nav').innerHTML=Object.entries(TABS).map(([k,v])=>`<button class="${k===tab?'on':''}" onclick="tab='${k}';render();scrollTo(0,0)">${v[0]}</button>`).join('');$('#app').innerHTML=TABS[tab][1]();if(tab==='play')pl()}
+fetch('data.json?'+Date.now()).then(r=>r.json()).then(d=>{D=d;$('#info').textContent=`ผลล่าสุด ${D.last} · อัปเดต ${D.updated} · ข้อมูล ${D.n} นัด (${D.seasons.length} ฤดูกาล)`;
+ render();if(tab==='play'){}}).catch(e=>$('#info').textContent='โหลดข้อมูลไม่สำเร็จ: '+e);
+</script></body></html>
