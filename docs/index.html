@@ -33,25 +33,22 @@ let D,tab='home',inj=true;const $=s=>document.querySelector(s);
 const nm=t=>t.replace(/ (AFC|FC)$/,'').replace(/^AFC /,'');const pct=x=>Math.round(x*100)+'%';
 const TC={arsenal:['ARS','#e03a3e'],'aston villa':['AVL','#8a2a4f'],bournemouth:['BOU','#c8102e'],brentford:['BRE','#e30613'],'brighton & hove albion':['BHA','#0057b8'],burnley:['BUR','#7a263a'],chelsea:['CHE','#034694'],'crystal palace':['CRY','#1b458f'],everton:['EVE','#003399'],fulham:['FUL','#555'],'leeds united':['LEE','#1d428a'],liverpool:['LIV','#c8102e'],'manchester city':['MCI','#4d8fc7'],'manchester united':['MUN','#da291c'],'newcastle united':['NEW','#444'],'nottingham forest':['NFO','#dd0000'],'tottenham hotspur':['TOT','#3a4a8a'],'west ham united':['WHU','#7a263a'],'wolverhampton wanderers':['WOL','#b8860b'],sunderland:['SUN','#d71920'],'coventry city':['COV','#3d8bc4'],'ipswich town':['IPS','#0b4ea2']};
 function badge(t){const k=nm(t).toLowerCase();const h=[...k].reduce((a,x)=>(a*31+x.charCodeAt(0))%360,7);const[c,col]=TC[k]||[nm(t).slice(0,3).toUpperCase(),`hsl(${h},45%,38%)`];return`<span class="bd" style="background:${col}">${c}</span>`}
-const fa=k=>{let r=1;for(let i=2;i<=k;i++)r*=i;return r};
-const pf=(k,l)=>Math.exp(-l)*l**k/fa(k);
-function pr(h,a,u){let lh=(D.att[h]||1)*(D.def[a]||1)*D.H,la=(D.att[a]||1)*(D.def[h]||1);const R=D.rho||0;
- if(u&&D.inj_ok&&D.inj[h]&&D.inj[a]){lh*=D.inj[h].attf*D.inj[a].deff;la*=D.inj[a].attf*D.inj[h].deff}
- const C=[];let t=0,w=0,d=0,l=0,o=0,bt=0;
- for(let i=0;i<10;i++)for(let j=0;j<10;j++){let x=1;if(i<2&&j<2)x=[[1-lh*la*R,1+lh*R],[1+la*R,1-R]][i][j];const p=Math.max(x,1e-6)*pf(i,lh)*pf(j,la);C.push([i,j,p]);t+=p}
- for(const c of C){c[2]/=t;const[i,j,p]=c;if(i>j)w+=p;else if(i==j)d+=p;else l+=p;if(i+j>=3)o+=p;if(i&&j)bt+=p}
- const k=w>=Math.max(d,l)?'H':d>=l?'D':'A';C.sort((x,y)=>y[2]-x[2]);
- const b=C.find(c=>(c[0]>c[1]?'H':c[0]==c[1]?'D':'A')===k);return{w,d,l,b,t3:C.slice(0,3),o,bt,lh,la}}
 const TZ={timeZone:'Asia/Bangkok'};
 const dayKey=f=>f[3]?new Date(f[3]).toLocaleDateString('en-CA',TZ):f[0];
 const dayTxt=f=>(f[3]?new Date(f[3]):new Date(f[0]+'T12:00:00Z')).toLocaleDateString('th-TH',{...TZ,weekday:'long',day:'numeric',month:'short'});
 const timeTxt=f=>f[3]?new Date(f[3]).toLocaleTimeString('th-TH',{...TZ,hour:'2-digit',minute:'2-digit'})+' น.':'';
 const ij=t=>{const i=D.inj[t];return i&&i.players.length?`<div class="m">🤕 ${nm(t)}: ${i.players.slice(0,3).map(x=>x.n).join(', ')}</div>`:''};
-function card(f){const[,h,a]=f,p=pr(h,a,inj),star=Math.max(p.w,p.d,p.l)>=.55?'<small>⭐</small>':'';
- return`<div class="c"><span class="dchip">${dayTxt(f)}${timeTxt(f)?' · '+timeTxt(f):''}</span>
- <div class="row"><div class="tm">${badge(h)}<span>${nm(h)}</span></div><div class="sc">${star}${p.b[0]} - ${p.b[1]}</div><div class="tm r">${badge(a)}<span>${nm(a)}</span></div></div>
+function card(f){const[,h,a]=f,P=f[4],p=(inj&&P.i)?P.i:P.b,star=Math.max(p.w,p.d,p.l)>=.55?'<small>⭐</small>':'';
+ const uk=f[3]?new Date(f[3]).toLocaleString('th-TH',{timeZone:'Europe/London',weekday:'short',hour:'2-digit',minute:'2-digit'}):'';
+ return`<div class="c"><span class="dchip">${dayTxt(f)}${timeTxt(f)?' · '+timeTxt(f):''}</span>${uk?` <span class="m">(เวลาอังกฤษ ${uk})</span>`:''}
+ <div class="row"><div class="tm">${badge(h)}<span>${nm(h)}</span></div><div class="sc">${star}${p.s[0]} - ${p.s[1]}</div><div class="tm r">${badge(a)}<span>${nm(a)}</span></div></div>
  <div class="bar"><div style="width:${p.w*100}%;background:var(--g)"></div><div style="width:${p.d*100}%;background:#5a6bb5"></div><div style="width:${p.l*100}%;background:var(--r)"></div></div>
- <div class="lg"><span>เหย้า ${pct(p.w)}</span><span>เสมอ ${pct(p.d)}</span><span>เยือน ${pct(p.l)}</span></div><div class="m" style="margin-top:8px">สกอร์ที่เป็นไปได้: ${p.t3.map(c=>`${c[0]}-${c[1]} (${pct(c[2])})`).join(' · ')}</div><div class="m">สูงกว่า 2.5 ประตู ${pct(p.o)} · ทั้งคู่ได้ประตู ${pct(p.bt)} · ประตูคาด ${p.lh.toFixed(1)}-${p.la.toFixed(1)}</div>${inj&&D.inj_ok?ij(h)+ij(a):''}</div>`}
+ <div class="lg"><span>เหย้า ${pct(p.w)}</span><span>เสมอ ${pct(p.d)}</span><span>เยือน ${pct(p.l)}</span></div>
+ <div class="m" style="margin-top:8px">ทาย: <b>${pt[p.k]}</b> · สกอร์ตรงกลางคือสกอร์ที่น่าจะเป็นที่สุดของผลนี้</div>
+ <div class="m">สกอร์ที่มีโอกาสสูงสุดทีละสกอร์: ${p.t3.map(c=>`${c[0]}-${c[1]} (${pct(c[2])})`).join(' · ')}</div>
+ <div class="m">สูงกว่า 2.5 ประตู ${pct(p.o)} · ทั้งคู่ได้ประตู ${pct(p.bt)} · ประตูคาด ${p.lh.toFixed(1)}-${p.la.toFixed(1)}</div>
+ ${p.mk?`<div class="m">เจ้ามือให้: เหย้า ${pct(p.mk[0])} · เสมอ ${pct(p.mk[1])} · เยือน ${pct(p.mk[2])}</div>`:''}
+ ${inj&&D.inj_ok?ij(h)+ij(a):''}</div>`}
 const F=()=>[...D.fx].sort((x,y)=>(x[3]||x[0]).localeCompare(y[3]||y[0]));
 const toggle=()=>D.inj_ok?`<label><input type="checkbox" ${inj?'checked':''} onchange="inj=this.checked;render()"> ปรับตามตัวเจ็บ</label>`:'<span class="m">⚠️ ยังไม่ได้ข้อมูลตัวเจ็บ ใช้สถิติล้วน</span>';
 const legend='<div class="m">⭐ = โมเดลมั่นใจ (ผลใดผลหนึ่งมีโอกาสเกิน 55%) · ทายล่วงหน้าเฉพาะสัปดาห์นี้ เพราะข่าวเปลี่ยนได้ตลอด</div>';
@@ -65,11 +62,15 @@ function fxTab(){const L=F();let last='',o=`<h2>โปรแกรมสัป�
 function tbl(n){const T=n?D.table.slice(0,n):D.table;return`<table><tr><th>#</th><th>ทีม</th><th>แข่ง</th>${n?'':'<th>ชนะ</th><th>เสมอ</th><th>แพ้</th><th>ได้</th><th>เสีย</th><th>ต่าง</th>'}<th>แต้ม</th></tr>`+T.map((r,i)=>`<tr><td>${i+1}</td><td><div class="tm2">${badge(r[0])}${nm(r[0])}</div></td><td>${r[1]}</td>${n?'':`<td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td><td>${r[6]}</td><td>${r[7]}</td>`}<td><b>${r[8]}</b></td></tr>`).join('')+'</table>'}
 const pt={H:'เจ้าบ้านชนะ',D:'เสมอ',A:'เยือนชนะ'};
 const BM=()=>D.bt.use_dc?D.bt.dc:D.bt.po;
+function blendBox(){const B=D.bt,ks=Object.keys(B.blend||{}).sort((a,b)=>a-b);
+ if(!ks.length)return`<div class="c"><b>ราคาเจ้ามือ</b><div class="m">${B.odds_tested?'ข้อมูลราคาไม่พอให้ทดสอบ':'ยังดึงราคาเจ้ามือจาก football-data.co.uk ไม่ได้ ระบบใช้โมเดลของเราล้วน'}</div></div>`;
+ const nmk=k=>k==0?'โมเดลเรา 100%':k==1?'เจ้ามือ 100%':'เจ้ามือ '+Math.round(k*100)+'%';
+ return`<div class="c"><b>ผสมราคาเจ้ามือ</b><div class="m">ทดสอบ ${B.blend[ks[0]].n} นัดที่มีราคา · ระบบเลือกสัดส่วนที่ดีที่สุดเอง: <b>${nmk(B.lam)}</b></div><div style="overflow-x:auto"><table><tr><th style="text-align:left">สัดส่วน</th><th>ผลถูก</th><th>สกอร์เป๊ะ</th><th>Top-3</th><th>log</th></tr>${ks.map(k=>{const v=B.blend[k];return`<tr style="${+k===B.lam?'color:#a5b4fc;font-weight:700':''}"><td style="text-align:left">${nmk(+k)}</td><td>${v.acc}%</td><td>${v.ex}%</td><td>${v.t3}%</td><td>${v.ll}</td></tr>`}).join('')}</table></div><div class="m" style="margin-top:6px">ราคาในอดีตเป็นราคาก่อนเตะใกล้เวลาแข่ง ส่วนราคาที่ใช้ทายล่วงหน้าอาจออกมาก่อนหลายวัน จึงอาจแม่นน้อยกว่าตัวเลขนี้</div></div>`}
 function accTab(){const a=D.acc,B=D.bt,u=B.use_dc;
  const rows=[['ผลแพ้/เสมอ/ชนะถูก','acc','%'],['สกอร์เป๊ะ','ex','%'],['สกอร์จริงอยู่ใน Top-3','t3','%'],['สูง/ต่ำ 2.5 ถูก','ou','%'],['ทั้งคู่ได้ประตู (BTTS) ถูก','bt','%'],['คลาดเคลื่อนประตูรวม (น้อย=ดี)','mae',' ประตู'],['คะแนน log ของสกอร์จริง (ใกล้ 0 = ดี)','ll','']];
  let o=`<h2>ความแม่น</h2><div class="c"><b>ทดสอบเดินหน้า ${B.n} นัด</b><div class="m">ฝึกด้วยข้อมูลก่อนแต่ละช่วงแล้วทายช่วงนั้น ไม่แอบดูเฉลย · ครึ่งชีวิตข้อมูล ${B.hl} วัน (จูนเอง) · ${u?'ใช้ตัวแก้ Dixon-Coles':'Dixon-Coles ไม่ช่วย จึงใช้ Poisson'}</div>
  <div style="overflow-x:auto"><table><tr><th style="text-align:left">ตัวชี้วัด</th><th>ค่าเฉลี่ยลีก</th><th>Poisson</th><th>Dixon-Coles</th></tr>${rows.map(r=>`<tr><td style="text-align:left">${r[0]}</td>${['base','po','dc'].map(k=>`<td>${B[k][r[1]]}${r[2]}</td>`).join('')}</tr>`).join('')}</table></div>
- <div class="m" style="margin-top:8px">"ค่าเฉลี่ยลีก" คือโมเดลเปล่าที่ไม่รู้จักทีมเลย ใช้เป็นเส้นฐานว่าความรู้เรื่องทีมช่วยได้แค่ไหน</div></div><div class="c"><b>ผลทายจริงของแอปนี้</b>`;
+ <div class="m" style="margin-top:8px">"ค่าเฉลี่ยลีก" คือโมเดลเปล่าที่ไม่รู้จักทีมเลย ใช้เป็นเส้นฐานว่าความรู้เรื่องทีมช่วยได้แค่ไหน</div></div>${blendBox()}<div class="c"><b>ผลทายจริงของแอปนี้</b>`;
  if(!a.n)o+='<div class="m">ยังไม่มีแมตช์ที่ทายแล้วแข่งจบ</div>';else o+=`<div class="k"><span>ตรวจแล้ว</span><b>${a.n} นัด</b></div><div class="k"><span>ผลถูก (สถิติล้วน)</span><b>${Math.round(a.b/a.n*100)}%</b></div>${a.ni?`<div class="k"><span>ผลถูก (รวมตัวเจ็บ ${a.ni} นัด)</span><b>${Math.round(a.i/a.ni*100)}%</b></div>`:''}<div class="k"><span>สกอร์เป๊ะ</span><b>${Math.round(a.eb/a.n*100)}%</b></div>${a.nt?`<div class="k"><span>สกอร์อยู่ใน Top-3 (${a.nt} นัด)</span><b>${Math.round(a.t3/a.nt*100)}%</b></div>`:''}`;
  return o+'</div>'+D.hist.map(h=>`<div class="c"><div class="m">${h.d}</div><div class="row"><div class="tm">${badge(h.h)}<span>${nm(h.h)}</span></div><div class="sc">${h.x} - ${h.y}</div><div class="tm r">${badge(h.a)}<span>${nm(h.a)}</span></div></div><div class="m" style="margin-top:8px">ทาย: ${pt[h.pb]} (สกอร์ ${h.b[0]}-${h.b[1]}) ${h.okb?'✅':'❌'}${h.h3===true?' · สกอร์อยู่ใน Top-3 ✅':''}${h.pi?` · รวมตัวเจ็บ: ${pt[h.pi]} ${h.oki?'✅':'❌'}`:''} · ผลจริง: ${pt[h.r]}</div></div>`).join('')}
 function right(){const a=D.acc,u=D.updated_at.split(' ');const d=new Date(u[0]+'T00:00:00').toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
