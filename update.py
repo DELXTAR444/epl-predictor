@@ -57,11 +57,11 @@ try:
 except Exception as e:print('FPL skip:',e)
 M.sort();FX=sorted(set(FX))
 print('matches',len(M),'last',M[-1][0],'fixtures',len(FX),'injuries',inj_ok)
-# ---------- โมเดล Poisson ----------
-def fit(ms,ref,hl=300):
+# ---------- โมเดล: Poisson + Dixon-Coles ----------
+def fit(ms,ref,hl):
     W=[(0.5**(max((ref-d).days,0)/hl),h,a,x,y) for d,h,a,x,y in ms]
     T={t for w,h,a,x,y in W for t in(h,a)};A={t:1.0 for t in T};Dd=dict(A);H=1.3
-    for _ in range(50):
+    for _ in range(35):
         n=defaultdict(float);dn=defaultdict(float)
         for w,h,a,x,y in W:n[h]+=w*x;dn[h]+=w*Dd[a]*H;n[a]+=w*y;dn[a]+=w*Dd[h]
         A={t:(n[t]+2)/(dn[t]+2) for t in T}
@@ -71,41 +71,93 @@ def fit(ms,ref,hl=300):
         H=sum(w*x for w,h,a,x,y in W)/sum(w*A[h]*Dd[a] for w,h,a,x,y in W)
         k=sum(A.values())/len(A);A={t:v/k for t,v in A.items()};Dd={t:v*k for t,v in Dd.items()}
     return A,Dd,H
-def pr(A,Dd,H,h,a,I=None):
-    lh=A.get(h,1)*Dd.get(a,1)*H;la=A.get(a,1)*Dd.get(h,1)
-    if I and h in I and a in I:lh*=I[h]['attf']*I[a]['deff'];la*=I[a]['attf']*I[h]['deff']
-    w=d=l=0;b=(0,0,-1)
+def tau(i,j,lh,la,r):
+    if i==0 and j==0:return 1-lh*la*r
+    if i==0 and j==1:return 1+lh*r
+    if i==1 and j==0:return 1+la*r
+    if i==1 and j==1:return 1-r
+    return 1
+def fit_rho(ms,A,Dd,H,ref,hl):  # ค่าแก้ Dixon-Coles สำหรับสกอร์ต่ำ
+    sub=[m for m in ms if m[3]<2 and m[4]<2 and m[1] in A and m[2] in A];best=(0,-1e18)
+    for k in range(-20,11,2):
+        r=k/100;ll=0
+        for d,h,a,x,y in sub:
+            t=tau(x,y,A[h]*Dd[a]*H,A[a]*Dd[h],r)
+            if t<=0:ll=-1e18;break
+            ll+=0.5**(max((ref-d).days,0)/hl)*math.log(t)
+        if ll>best[1]:best=(r,ll)
+    return best[0]
+def grid(lh,la,rho):
+    pi=[math.exp(-lh)*lh**i/math.factorial(i) for i in range(10)];pj=[math.exp(-la)*la**j/math.factorial(j) for j in range(10)]
+    G=[[max(tau(i,j,lh,la,rho),1e-6)*pi[i]*pj[j] for j in range(10)] for i in range(10)]
+    t=sum(map(sum,G));return [[v/t for v in r] for r in G]
+def summ(G):
+    w=d=l=o=bt=0;cells=[]
     for i in range(10):
-        pi=math.exp(-lh)*lh**i/math.factorial(i)
         for j in range(10):
-            p=pi*math.exp(-la)*la**j/math.factorial(j)
-            if p>b[2]:b=(i,j,p)
+            p=G[i][j];cells.append((p,i,j))
             if i>j:w+=p
             elif i==j:d+=p
             else:l+=p
-    t=w+d+l;return dict(w=round(w/t,3),d=round(d/t,3),l=round(l/t,3),s=[b[0],b[1]])
-pick=lambda p:max((p['w'],'H'),(p['d'],'D'),(p['l'],'A'))[1]
+            if i+j>=3:o+=p
+            if i>0 and j>0:bt+=p
+    k='H' if w>=max(d,l) else 'D' if d>=l else 'A'
+    c=sorted(cells,reverse=True);b=next(z for z in c if ('H' if z[1]>z[2] else 'D' if z[1]==z[2] else 'A')==k)
+    return dict(w=round(w,3),d=round(d,3),l=round(l,3),k=k,s=[b[1],b[2]],t3=[[z[1],z[2],round(z[0],3)] for z in c[:3]],o=round(o,3),bt=round(bt,3))
+def pr(A,Dd,H,rho,h,a,I=None):
+    lh=A.get(h,1)*Dd.get(a,1)*H;la=A.get(a,1)*Dd.get(h,1)
+    if I and h in I and a in I:lh*=I[h]['attf']*I[a]['deff'];la*=I[a]['attf']*I[h]['deff']
+    r=summ(grid(lh,la,rho));r['lh']=round(lh,2);r['la']=round(la,2);return r
+pick=lambda p:p.get('k') or max((p['w'],'H'),(p['d'],'D'),(p['l'],'A'))[1]
 res3=lambda x,y:'H' if x>y else 'D' if x==y else 'A'
-# backtest: ฝึกด้วยข้อมูลก่อน 100 นัดล่าสุด แล้วทาย 100 นัดนั้น
-N=100;tr,te=M[:-N],M[-N:];A0,D0,H0=fit(tr,te[0][0]);ok=ex=bs_=n=0
-for d,h,a,x,y in te:
-    if h in A0 and a in A0:
-        p=pr(A0,D0,H0,h,a);n+=1;ok+=pick(p)==res3(x,y);ex+=tuple(p['s'])==(x,y);bs_+=res3(x,y)=='H'
-bt=dict(n=n,acc=round(ok/n*100),exact=round(ex/n*100),base=round(bs_/n*100))
-A,Dd,H=fit(M,TODAY)
+def mets(G,x,y):
+    x,y=min(x,9),min(y,9);S=summ(G);act=res3(x,y)
+    E=sum((i+j)*G[i][j] for i in range(10) for j in range(10))
+    return dict(ll=math.log(max(G[x][y],1e-9)),acc=S['k']==act,ex=S['s']==[x,y],t3=any(c[0]==x and c[1]==y for c in S['t3']),ou=(S['o']>.5)==(x+y>=3),bt=(S['bt']>.5)==(x>0 and y>0),mae=abs(E-x-y))
+def agg(L):
+    n=len(L);o={k:round(sum(m[k] for m in L)/n*100,1) for k in('acc','ex','t3','ou','bt')}
+    o['ll']=round(sum(m['ll'] for m in L)/n,3);o['mae']=round(sum(m['mae'] for m in L)/n,2);return o
+BL,NB=6,50
+def evaluate(hl):  # backtest เดินหน้า: ฝึกด้วยข้อมูลก่อนแต่ละช่วง แล้วทายช่วงนั้น
+    R={'dc':[],'po':[],'base':[]};tot=len(M)
+    for b in range(BL):
+        s0=tot-(BL-b)*NB;blk=M[s0:s0+NB];tr=M[:s0];ref=blk[0][0]
+        A,Dd,H=fit(tr,ref,hl);rho=fit_rho(tr,A,Dd,H,ref,hl)
+        mh=sum(m[3] for m in tr)/len(tr);ma=sum(m[4] for m in tr)/len(tr)
+        for d,h,a,x,y in blk:
+            if h not in A or a not in A:continue
+            lh=A[h]*Dd[a]*H;la=A[a]*Dd[h]
+            R['dc'].append(mets(grid(lh,la,rho),x,y));R['po'].append(mets(grid(lh,la,0),x,y));R['base'].append(mets(grid(mh,ma,0),x,y))
+    return R
+TP=DATA+'/tune.json';tune=None
+if os.path.exists(TP):
+    t=json.load(open(TP))
+    if (TODAY-dt.date.fromisoformat(t['date'])).days<14:tune=t
+if not tune:
+    best=None
+    for hl in(120,250,400,700):
+        R=evaluate(hl);ll=sum(m['ll'] for m in R['dc'])/len(R['dc']);print('half-life',hl,'score loglik',round(ll,4))
+        if not best or ll>best[0]:best=(ll,hl,R)
+    ag={k:agg(v) for k,v in best[2].items()}
+    tune=dict(date=str(TODAY),hl=best[1],use_dc=ag['dc']['ll']>ag['po']['ll'],n=len(best[2]['dc']),**ag)
+    json.dump(tune,open(TP,'w'))
+HL=tune['hl'];A,Dd,H=fit(M,TODAY,HL);rho=fit_rho(M,A,Dd,H,TODAY,HL) if tune['use_dc'] else 0.0
+print('tuned',HL,tune['use_dc'],rho)
 # ---------- บันทึกผลทาย (เทียบกับผลจริงทีหลัง) ----------
 LP=DATA+'/predictions.json';log=json.load(open(LP)) if os.path.exists(LP) else {}
 for d,h,a in FX:
     k=f'{d}|{h}|{a}'
     if d>=TODAY and d<=TODAY+dt.timedelta(6) and (d>TODAY or k not in log):
-        log[k]=dict(d=str(d),h=h,a=a,b=pr(A,Dd,H,h,a),i=pr(A,Dd,H,h,a,INJ) if inj_ok else None)
+        log[k]=dict(d=str(d),h=h,a=a,b=pr(A,Dd,H,rho,h,a),i=pr(A,Dd,H,rho,h,a,INJ) if inj_ok else None)
 json.dump(log,open(LP,'w'),ensure_ascii=False,indent=0)
-res={f'{d}|{h}|{a}':(x,y) for d,h,a,x,y in M};hist=[];s=dict(n=0,b=0,i=0,ni=0,eb=0,ei=0)
+res={f'{d}|{h}|{a}':(x,y) for d,h,a,x,y in M};hist=[];s=dict(n=0,b=0,i=0,ni=0,eb=0,ei=0,nt=0,t3=0)
 for k,v in sorted(log.items(),reverse=True):
     if k in res:
         x,y=res[k];r=res3(x,y);s['n']+=1;s['b']+=pick(v['b'])==r;s['eb']+=tuple(v['b']['s'])==(x,y)
+        h3=None
+        if 't3' in v['b']:h3=any((c[0],c[1])==(x,y) for c in v['b']['t3']);s['nt']+=1;s['t3']+=h3
         if v['i']:s['ni']+=1;s['i']+=pick(v['i'])==r;s['ei']+=tuple(v['i']['s'])==(x,y)
-        hist.append(dict(d=v['d'],h=v['h'],a=v['a'],x=x,y=y,b=v['b']['s'],i=v['i']['s'] if v['i'] else None,okb=pick(v['b'])==r,oki=bool(v['i']) and pick(v['i'])==r,pb=pick(v['b']),pi=pick(v['i']) if v['i'] else None,r=r))
+        hist.append(dict(d=v['d'],h=v['h'],a=v['a'],x=x,y=y,b=v['b']['s'],i=v['i']['s'] if v['i'] else None,okb=pick(v['b'])==r,oki=bool(v['i']) and pick(v['i'])==r,pb=pick(v['b']),pi=pick(v['i']) if v['i'] else None,r=r,h3=h3))
 T=sorted(t for t in CANON if t in {h for _,h,_ in FX}|{a for _,_,a in FX})
 TB={t:[0]*6 for t in T}
 for d,h,a,x,y in M:
@@ -117,8 +169,8 @@ for d,h,a,x,y in M:
         else:r[3]+=1
 table=sorted(([t,r[0],r[1],r[2],r[3],r[4],r[5],r[4]-r[5],r[1]*3+r[2]] for t,r in TB.items() if t in T),key=lambda z:(-z[8],-z[7],-z[5]))
 NOW=os.environ['FAKE_TODAY']+' 00:00' if os.environ.get('FAKE_TODAY') else dt.datetime.now(dt.timezone(dt.timedelta(hours=7))).strftime('%Y-%m-%d %H:%M')
-D=dict(updated=str(TODAY),updated_at=NOW,table=table,last=str(M[-1][0]),n=len(M),seasons=SEASONS,inj_ok=inj_ok,teams=T,H=round(H,3),
+D=dict(updated=str(TODAY),updated_at=NOW,table=table,last=str(M[-1][0]),n=len(M),seasons=SEASONS,inj_ok=inj_ok,teams=T,H=round(H,3),rho=round(rho,3),
     att={t:round(A.get(t,1),3) for t in T},**{'def':{t:round(Dd.get(t,1),3) for t in T}},inj=INJ,
-    fx=[[str(d),h,a,KO.get((d,h,a),'')] for d,h,a in FX if TODAY<=d<=TODAY+dt.timedelta(6)],bt=bt,acc=s,hist=hist[:40])
+    fx=[[str(d),h,a,KO.get((d,h,a),'')] for d,h,a in FX if TODAY<=d<=TODAY+dt.timedelta(6)],bt=tune,acc=s,hist=hist[:40])
 json.dump(D,open(DOCS+'/data.json','w'),ensure_ascii=False,separators=(',',':'))
-print('ok',bt,s)
+print('ok',tune['dc'],tune['po'],tune['base'],s)
