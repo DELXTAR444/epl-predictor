@@ -123,26 +123,27 @@ def lk(D_,d,h,a):
         if v:return v
 odds_for=lambda d,h,a:lk(ODDS,d,h,a)
 GM={(d,h,a):(x,y) for d,h,a,x,y in M}
-def fit_xg():  # ประตูที่คาดจากยิงตรงกรอบ/ยิงนอกกรอบ (ถดถอยกำลังสองน้อยสุด)
+def fit_xg(cut=None):  # ประตูที่คาดจากยิงตรงกรอบ/ยิงนอกกรอบ (ถดถอยกำลังสองน้อยสุด)
     sa=sb=sab=sag=sbg=n=0
     for k,s in SHOTS.items():
         g=GM.get(k)
-        if not g:continue
+        if not g or (cut and k[0]>=cut):continue
         for sh,st,go in((s[0],s[2],g[0]),(s[1],s[3],g[1])):
             a_,b_=st,sh-st;sa+=a_*a_;sb+=b_*b_;sab+=a_*b_;sag+=a_*go;sbg+=b_*go;n+=1
     det=sa*sb-sab*sab
     if n<200 or det<=0:return None
     return max((sag*sb-sab*sbg)/det,0),max((sa*sbg-sab*sag)/det,0)
 XG=fit_xg();print('xg coef',XG)
-def adj(ms,g):
+def adj(ms,g,co):
     out=[]
     for d,h,a,x,y in ms:
         s=lk(SHOTS,d,h,a)
-        if s:out.append((d,h,a,(1-g)*x+g*(XG[0]*s[2]+XG[1]*(s[0]-s[2])),(1-g)*y+g*(XG[0]*s[3]+XG[1]*(s[1]-s[3]))))
+        if s:out.append((d,h,a,(1-g)*x+g*(co[0]*s[2]+co[1]*(s[0]-s[2])),(1-g)*y+g*(co[0]*s[3]+co[1]*(s[1]-s[3]))))
         else:out.append((d,h,a,x,y))
     return out
 ADJ={0:M}
-if XG:ADJ[0.5]=adj(M,.5);ADJ[1.0]=adj(M,1.0)
+if XG:
+    for g_ in(.25,.5,1.0):ADJ[g_]=adj(M,g_,XG)
 # ---------- วันพัก ----------
 DATES=defaultdict(list)
 for d,h,a,x,y in M:DATES[h].append(d);DATES[a].append(d)
@@ -255,48 +256,53 @@ aggr=lambda recs,**kw:agg([mets(build_G(r,**kw),r['x'],r['y']) for r in recs])
 def llmean(recs,**kw):return sum(math.log(max(build_G(r,**kw)[min(r['x'],9)][min(r['y'],9)],1e-9)) for r in recs)/len(recs)
 BL,NB=6,50
 def evaluate(hl,g):  # backtest เดินหน้า: ฝึกด้วยข้อมูลก่อนแต่ละช่วง แล้วทายช่วงนั้น
-    recs=[];tot=len(M);AD=ADJ[g]
+    recs=[];tot=len(M)
     for b in range(BL):
         s0=tot-(BL-b)*NB;ref=M[s0][0]
-        A,Dd,H=fit(AD[:s0],ref,hl);rho=fit_rho(M[:s0],A,Dd,H,ref,hl);HF=hfac(AD[:s0],A,Dd,H,ref,hl)
+        co=fit_xg(ref) if g else None;ADs=adj(M[:s0],g,co) if co else M[:s0]
+        A,Dd,H=fit(ADs,ref,hl);rho=fit_rho(M[:s0],A,Dd,H,ref,hl);HF=hfac(ADs,A,Dd,H,ref,hl)
         mh=sum(m[3] for m in M[:s0])/s0;ma=sum(m[4] for m in M[:s0])/s0
         for k in range(s0,min(s0+NB,tot)):
             d,h,a,x,y=M[k]
             if h in A and a in A:recs.append(dict(lh=A[h]*Dd[a]*H,la=A[a]*Dd[h],hf=HF.get(h,1),rho=rho,x=x,y=y,mk=odds_for(d,h,a),el=ELO3[k],rh=rest(h,d),ra=rest(a,d),bh=mh,ba=ma))
     return recs
-def choose(recs):  # เลือกทีละตัวเลือก เก็บไว้เฉพาะที่ดีขึ้นชัดเจน (กันโมเดลซับซ้อนเกินจำเป็น)
-    P=dict(dc=False,hf=False,rc=0.0,eps=0.0,lam=0.0)
+def lls(recs,**kw):return [math.log(max(build_G(r,**kw)[min(r['x'],9)][min(r['y'],9)],1e-9)) for r in recs]
+def better(a,b):  # b ดีกว่า a ชัดเจนไหม: ผลต่างเฉลี่ยรายนัดต้องเกิน 1 ค่าคลาดเคลื่อนมาตรฐานแบบจับคู่
+    if len(a)!=len(b) or len(a)<30:return False
+    d=[y-x for x,y in zip(a,b)];n=len(d);m=sum(d)/n;se=(sum((v-m)**2 for v in d)/(n-1)/n)**.5
+    return m>se
+def choose(recs):
+    P=dict(dc=False,hf=False,rc=0.0,eps=0.0,lam=0.0);cur=lls(recs,**KW(P))
     for key,opts in(('dc',[False,True]),('hf',[False,True]),('rc',[0.0,.01,.02,.03]),('eps',[0.0,.25,.5])):
-        bs=llmean(recs,**KW(P))
         for v in opts[1:]:
-            sc=llmean(recs,**KW({**P,key:v}))
-            if sc>bs+0.0005:P[key]=v;bs=sc
+            c=lls(recs,**KW({**P,key:v}))
+            if better(cur,c):P[key]=v;cur=c
     return P
 TP=DATA+'/tune.json';tune=None
 if os.path.exists(TP):
     t=json.load(open(TP))
-    if (TODAY-dt.date.fromisoformat(t['date'])).days<14 and t.get('odds_tested')==bool(ODDS) and t.get('shots_tested')==bool(XG) and t.get('v')==2:tune=t
+    if (TODAY-dt.date.fromisoformat(t['date'])).days<14 and t.get('odds_tested')==bool(ODDS) and t.get('shots_tested')==bool(XG) and t.get('v')==3:tune=t
 EL=tune['elo'] if tune else elo_tune()
 PRE,ELOR=elo_pass(EL[0],EL[1]);ELO3=[elo3(v,EL[2]) for v in PRE]
 if not tune:
-    best=None
-    for hl in(120,250,400,700):
-        rc_=evaluate(hl,0);ll=llmean(rc_,dc=True);print('half-life',hl,round(ll,4))
-        if not best or ll>best[0]:best=(ll,hl,0,rc_)
+    r0=evaluate(400,0);best=[400,0,r0,lls(r0,dc=True)]  # ตั้งต้นที่ 400 วัน/ไม่ใช้สถิติยิง ตัวอื่นต้องชนะชัดเจนถึงจะแทนที่
+    for hl in(120,250,700):
+        r_=evaluate(hl,0);c=lls(r_,dc=True);print('half-life',hl,round(sum(c)/len(c),4))
+        if better(best[3],c):best=[hl,0,r_,c]
     if XG:
-        for g in(.5,1.0):
-            rc_=evaluate(best[1],g);ll=llmean(rc_,dc=True);print('shots weight',g,round(ll,4))
-            if ll>best[0]+0.0005:best=(ll,best[1],g,rc_)
-    recs=best[3];P=choose(recs);P['hl']=best[1];P['g']=best[2];blend={}
+        for g in(.25,.5,1.0):
+            r_=evaluate(best[0],g);c=lls(r_,dc=True);print('shots weight',g,round(sum(c)/len(c),4))
+            if better(best[3],c):best=[best[0],g,r_,c]
+    recs=best[2];P=choose(recs);P['hl']=best[0];P['g']=best[1];blend={}
     mr=[r for r in recs if r['mk']]
     if ODDS and len(mr)>=60:
-        bs=llmean(mr,**KW(P))
+        cur=lls(mr,**KW(P))
         for lam in(.25,.5,.75):
-            sc=llmean(mr,**KW({**P,'lam':lam}))
-            if sc>bs+0.0005:P['lam']=lam;bs=sc
+            c=lls(mr,**KW({**P,'lam':lam}))
+            if better(cur,c):P['lam']=lam;cur=c
         blend={str(l):{**aggr(mr,**KW({**P,'lam':l})),'n':len(mr)} for l in(0,.25,.5,.75,1)}
     tb=dict(base=agg([mets(grid(r['bh'],r['ba'],0),r['x'],r['y']) for r in recs]),po=aggr(recs,dc=False),full=aggr(recs,**KW({**P,'lam':0.0})))
-    tune=dict(v=2,date=str(TODAY),odds_tested=bool(ODDS),shots_tested=bool(XG),elo=EL,P=P,n=len(recs),tb=tb,blend=blend)
+    tune=dict(v=3,date=str(TODAY),odds_tested=bool(ODDS),shots_tested=bool(XG),elo=EL,P=P,n=len(recs),tb=tb,blend=blend)
     json.dump(tune,open(TP,'w'))
 P=tune['P'];HL=P['hl'];GW=P['g'];AD=ADJ.get(GW,M)
 A,Dd,H=fit(AD,TODAY,HL);rho=fit_rho(M,A,Dd,H,TODAY,HL);HF=hfac(AD,A,Dd,H,TODAY,HL) if P['hf'] else {}
