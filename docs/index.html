@@ -1,90 +1,168 @@
-<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><title>EPL ทายสกอร์</title>
+<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#070913"><title>EPL ทายสกอร์</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Kanit:wght@500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a1030;--card:#111a40;--bd:#243066;--fg:#f1f3ff;--mut:#9aa6d6;--ac:#5b5cf0;--g:#16c46a;--r:#f0364f}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#1c2a78 0,var(--bg) 60%) fixed;color:var(--fg);font-family:system-ui,"Noto Sans Thai",sans-serif}
-#shell{display:grid;grid-template-columns:1fr;gap:16px;padding:14px 14px 84px;max-width:1280px;margin:auto}
+:root{--bg:#070913;--sf:rgba(255,255,255,.045);--sf2:rgba(255,255,255,.08);--ln:rgba(255,255,255,.09);--fg:#eef1ff;--mut:#8f97bd;--ac:#7c6cff;--ac2:#22d3ee;--win:#2dd4a0;--dr:#6f7fc0;--ls:#ff5173;--gold:#fbbf24;
+--fh:'Kanit','IBM Plex Sans Thai',system-ui,sans-serif;--fb:'IBM Plex Sans Thai','Noto Sans Thai',system-ui,sans-serif;--fn:'Space Grotesk','Kanit',system-ui,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html{scroll-behavior:smooth}
+body{margin:0;color:var(--fg);font:400 14.5px/1.55 var(--fb);background:var(--bg);
+background-image:radial-gradient(900px 480px at 12% -8%,rgba(124,108,255,.22),transparent 60%),radial-gradient(700px 420px at 100% 0,rgba(34,211,238,.12),transparent 60%),linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+background-size:auto,auto,44px 44px,44px 44px;background-attachment:fixed}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}svg.i.f{fill:currentColor;stroke:none}
+#shell{display:grid;gap:18px;padding:16px 14px calc(92px + env(safe-area-inset-bottom,0));max-width:1320px;margin:auto}
 #side{display:none}
-@media(min-width:980px){#shell{grid-template-columns:220px 1fr 320px;padding:20px}#side{display:block}#bnav{display:none!important}}
-.brand{font-weight:800;font-size:18px;margin-bottom:18px}.brand small{display:block;font-weight:400;color:var(--mut);font-size:12px}
-#side button{display:flex;gap:10px;width:100%;padding:12px;margin-bottom:6px;border:0;border-radius:10px;background:none;color:var(--fg);font-size:15px;text-align:left;cursor:pointer}
-#side button.on{background:var(--ac)}
-#bnav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0)}
-#bnav button{flex:1;border:0;background:none;color:var(--mut);padding:12px 0;font-size:13px}#bnav button.on{color:#fff;font-weight:700}
-.hero{border:1px solid var(--bd);border-radius:16px;padding:18px;background:linear-gradient(120deg,#1b2a8a,#0e1650)}
-.hero h1{margin:0 0 6px;font-size:24px}.m{color:var(--mut);font-size:12.5px;line-height:1.6}
-h2{font-size:17px;margin:20px 0 10px;display:flex;justify-content:space-between;align-items:center}
-.pill{font-size:12px;font-weight:400;background:#1b2559;border:1px solid var(--bd);border-radius:8px;padding:5px 10px;color:var(--mut)}
-.c{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:10px}
-.dchip{display:inline-block;background:var(--ac);border-radius:8px;padding:3px 9px;font-size:12px;font-weight:700;margin-bottom:8px}
-.row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
-.tm{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;min-width:0}.tm.r{flex-direction:row-reverse;text-align:right}
-.bd{flex:none;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;border:2px solid #ffffff30}
-.sc{background:#0b1237;border:1px solid var(--bd);border-radius:10px;padding:8px 14px;font-size:24px;font-weight:800;text-align:center;min-width:86px}.sc small{display:block;font-size:14px;line-height:1.2}
-.bar{display:flex;height:8px;border-radius:6px;overflow:hidden;margin:12px 0 5px}.lg{display:flex;justify-content:space-between;font-size:12px;color:var(--mut)}
-.k{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd);font-size:14px}.k:last-child{border:0}
-table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:8px 4px;text-align:center;border-bottom:1px solid var(--bd)}td:nth-child(2),th:nth-child(2){text-align:left}
-.tm2{display:flex;align-items:center;gap:8px}.tm2 .bd{width:26px;height:26px;font-size:9px}
-label{font-size:13px;color:var(--mut)}
+@media(min-width:1000px){#shell{grid-template-columns:232px minmax(0,1fr) 330px;padding:26px 22px}#side{display:block;position:sticky;top:26px;align-self:start}#bnav{display:none!important}}
+.brand{display:flex;gap:12px;align-items:center;margin:0 0 26px}.brand .mk{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--ac),var(--ac2));display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(124,108,255,.45)}
+.brand b{font:700 19px/1.1 var(--fh);letter-spacing:.3px;display:block}.brand small{color:var(--mut);font-size:11.5px}
+.nv{display:flex;gap:11px;align-items:center;width:100%;padding:12px 14px;margin-bottom:6px;border:1px solid transparent;border-radius:12px;background:none;color:var(--mut);font:500 14.5px var(--fb);cursor:pointer;transition:.18s}
+.nv:hover{color:var(--fg);background:var(--sf)}.nv.on{color:#fff;background:linear-gradient(90deg,rgba(124,108,255,.35),rgba(124,108,255,.06));border-color:rgba(124,108,255,.45);box-shadow:0 0 24px rgba(124,108,255,.18) inset}
+#bnav{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0));display:flex;padding:6px;border-radius:18px;background:rgba(14,18,36,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--ln);z-index:20;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+#bnav .nv{flex-direction:column;gap:3px;margin:0;padding:8px 2px;font-size:11.5px;justify-content:center;text-align:center}
+.hero{position:relative;overflow:hidden;border:1px solid var(--ln);border-radius:22px;padding:22px;background:linear-gradient(135deg,rgba(124,108,255,.28),rgba(34,211,238,.08) 60%,rgba(255,255,255,.02))}
+.hero:after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;border:30px solid rgba(255,255,255,.04)}
+.hero h1{margin:0 0 4px;font:700 27px/1.15 var(--fh);letter-spacing:.2px}.hero h1 span{background:linear-gradient(90deg,#b3a8ff,var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.m{color:var(--mut);font-size:12.5px}.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.cp{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;background:var(--sf2);border:1px solid var(--ln);font-size:12px;color:var(--fg)}
+.cp.warn{color:#ffb4c2;background:rgba(255,81,115,.1);border-color:rgba(255,81,115,.3)}.cp.news{color:#a5f3fc;background:rgba(34,211,238,.08);border-color:rgba(34,211,238,.28)}.cp.conf{color:var(--gold);background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.35);font-weight:600}
+h2{font:600 18px var(--fh);margin:26px 0 12px;display:flex;justify-content:space-between;align-items:center;gap:10px}h2 small{font:400 12.5px var(--fb);color:var(--mut)}
+h3{font:600 12.5px var(--fh);letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin:18px 0 8px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.tile{padding:12px 14px;border-radius:14px;background:rgba(7,9,19,.5);border:1px solid var(--ln)}
+.tile b{display:block;font:700 24px/1.1 var(--fn)}.tile span{font-size:11.5px;color:var(--mut)}
+.c{background:var(--sf);border:1px solid var(--ln);border-radius:18px;padding:16px;margin-bottom:12px;backdrop-filter:blur(6px)}
+.c>b:first-child{font:600 15.5px var(--fh)}
+.mc{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.03));border:1px solid var(--ln);border-radius:20px;padding:16px;margin-bottom:12px;cursor:pointer;transition:transform .18s,border-color .18s,box-shadow .18s;animation:up .45s both;outline:none}
+.mc:hover,.mc:focus-visible{transform:translateY(-3px);border-color:rgba(124,108,255,.6);box-shadow:0 14px 40px rgba(124,108,255,.18)}
+.mc:active{transform:scale(.99)}
+.mh{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;font-size:12.5px;color:var(--mut)}.mh .t{font:600 13px var(--fn);color:var(--fg);padding:3px 10px;border-radius:8px;background:var(--sf2)}.mh .sp{flex:1}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
+.sd{display:flex;align-items:center;gap:11px;min-width:0}.sd.r{flex-direction:row-reverse;text-align:right}.sd .n{font:600 15.5px/1.25 var(--fh);overflow:hidden;text-overflow:ellipsis}
+.bd{flex:none;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 12px var(--fn);letter-spacing:.4px;color:#fff;border:2px solid rgba(255,255,255,.22);box-shadow:0 6px 16px rgba(0,0,0,.35),inset 0 -8px 14px rgba(0,0,0,.22)}
+.bd.s{width:30px;height:30px;font-size:9.5px;border-width:1.5px}.bd.l{width:64px;height:64px;font-size:17px}
+.score{display:flex;align-items:center;gap:8px;font:700 38px/1 var(--fn);padding:8px 16px;border-radius:16px;background:rgba(7,9,19,.65);border:1px solid var(--ln);text-shadow:0 0 22px rgba(124,108,255,.8)}.score i{font-style:normal;color:var(--mut);font-weight:500;font-size:24px}
+.pb{display:flex;height:9px;border-radius:99px;overflow:hidden;background:var(--sf2);margin:16px 0 7px}.pb div{height:100%;width:0;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.pb .h{background:linear-gradient(90deg,#16a37f,var(--win))}.pb .d{background:var(--dr)}.pb .a{background:linear-gradient(90deg,var(--ls),#ff7a93)}
+.pl{display:flex;justify-content:space-between;font:500 12px var(--fn);color:var(--mut)}.pl b{color:var(--fg)}
+.mf{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px;align-items:center}.mf .go{margin-left:auto;color:var(--ac2);font-size:12px;display:flex;align-items:center;gap:2px}.mf .go svg{width:15px;height:15px}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.sw{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:var(--mut);user-select:none}.sw input{display:none}
+.sw span{width:40px;height:23px;border-radius:99px;background:var(--sf2);border:1px solid var(--ln);position:relative;transition:.2s}.sw span:after{content:"";position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked+span{background:var(--ac);border-color:var(--ac)}.sw input:checked+span:after{left:19px}
+.bt2{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:12px;border:1px solid var(--ln);background:var(--sf2);color:var(--fg);font:500 13.5px var(--fb);cursor:pointer;transition:.15s}.bt2:hover{border-color:var(--ac);background:rgba(124,108,255,.18)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}th{font:600 11.5px var(--fh);letter-spacing:.5px;color:var(--mut);text-align:center;padding:8px 5px;border-bottom:1px solid var(--ln)}td{padding:9px 5px;text-align:center;border-bottom:1px solid rgba(255,255,255,.05);font-family:var(--fn)}
+td:nth-child(2),th:nth-child(2),.tl{text-align:left;font-family:var(--fb)}tr.cl{cursor:pointer}tr.cl:hover td{background:var(--sf)}
+tr.z1 td:first-child{box-shadow:inset 3px 0 var(--win)}tr.z2 td:first-child{box-shadow:inset 3px 0 var(--ac2)}tr.z3 td:first-child{box-shadow:inset 3px 0 var(--ls)}
+.tm2{display:flex;align-items:center;gap:9px;font-family:var(--fb);font-weight:500}
+.k{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13.5px}.k:last-child{border:0}.k b{font-family:var(--fn);text-align:right}
+.ok,.no{display:inline-flex;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;vertical-align:-4px}.ok{background:rgba(45,212,160,.18);color:var(--win)}.no{background:rgba(255,81,115,.18);color:var(--ls)}.ok svg,.no svg{width:12px;height:12px;stroke-width:3}
+.live{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--win);margin-right:8px;box-shadow:0 0 0 0 rgba(45,212,160,.7);animation:pu 2s infinite}@keyframes pu{70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.ov{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;background:rgba(3,5,12,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;transition:opacity .22s}.ov[hidden]{display:none}.ov.open{opacity:1}
+.sh{position:relative;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;border-radius:26px 26px 0 0;padding:22px 20px calc(26px + env(safe-area-inset-bottom,0));background:linear-gradient(180deg,#141935,#0b0f22);border:1px solid var(--ln);transform:translateY(40px);transition:transform .28s cubic-bezier(.2,.8,.2,1);box-shadow:0 -20px 60px rgba(0,0,0,.6)}
+.ov.open .sh{transform:none}@media(min-width:700px){.ov{align-items:center}.sh{border-radius:26px;max-height:88vh}}
+.x{position:sticky;float:right;top:0;width:36px;height:36px;border-radius:50%;border:1px solid var(--ln);background:var(--sf2);color:var(--fg);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}.x:hover{background:var(--ls)}
+.big{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center;margin:8px 0 6px}.big .n{font:600 16px/1.25 var(--fh);margin-top:8px}.big .score{font-size:46px;justify-content:center}.big>div:not(.score){display:flex;flex-direction:column;align-items:center;cursor:pointer}
+.bars .br{display:grid;grid-template-columns:56px 1fr 44px;align-items:center;gap:10px;margin:7px 0;font:500 13px var(--fn)}.bars .tr{height:8px;border-radius:99px;background:var(--sf2);overflow:hidden}.bars .tr i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:99px;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.g2{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.g2 .tile b{font-size:21px}
+.pl-i{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}.pl-i:last-child{border:0}.pl-i b{font-weight:600}.pl-i span{display:block;color:var(--mut);font-size:12px}
+a{color:#a5f3fc}.skel{height:150px;border-radius:20px;margin-bottom:12px;background:linear-gradient(90deg,var(--sf),var(--sf2),var(--sf));background-size:200% 100%;animation:sk 1.2s infinite}@keyframes sk{to{background-position:-200% 0}}
+@media(max-width:480px){.score{font-size:30px;padding:7px 11px}.bd{width:38px;height:38px}.sd .n{font-size:14px}.hero h1{font-size:23px}.tile b{font-size:20px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style></head><body>
-<div id="shell"><aside id="side"></aside><main id="main"><div class="m">กำลังโหลด…</div></main><section id="right"></section></div>
+<div id="shell"><aside id="side"></aside><main id="main"><div class="skel"></div><div class="skel"></div></main><section id="right"></section></div>
 <nav id="bnav"></nav>
+<div class="ov" id="ov" hidden onclick="if(event.target===this)closeM()"><div class="sh" role="dialog" aria-modal="true"><button class="x" onclick="closeM()" aria-label="ปิด"></button><div id="mb"></div></div></div>
 <script>
-let D,tab='home',inj=true;const $=s=>document.querySelector(s);
-const nm=t=>t.replace(/ (AFC|FC)$/,'').replace(/^AFC /,'');const pct=x=>Math.round(x*100)+'%';
-const TC={arsenal:['ARS','#e03a3e'],'aston villa':['AVL','#8a2a4f'],bournemouth:['BOU','#c8102e'],brentford:['BRE','#e30613'],'brighton & hove albion':['BHA','#0057b8'],burnley:['BUR','#7a263a'],chelsea:['CHE','#034694'],'crystal palace':['CRY','#1b458f'],everton:['EVE','#003399'],fulham:['FUL','#555'],'leeds united':['LEE','#1d428a'],liverpool:['LIV','#c8102e'],'manchester city':['MCI','#4d8fc7'],'manchester united':['MUN','#da291c'],'newcastle united':['NEW','#444'],'nottingham forest':['NFO','#dd0000'],'tottenham hotspur':['TOT','#3a4a8a'],'west ham united':['WHU','#7a263a'],'wolverhampton wanderers':['WOL','#b8860b'],sunderland:['SUN','#d71920'],'coventry city':['COV','#3d8bc4'],'ipswich town':['IPS','#0b4ea2']};
-function badge(t){const k=nm(t).toLowerCase();const h=[...k].reduce((a,x)=>(a*31+x.charCodeAt(0))%360,7);const[c,col]=TC[k]||[nm(t).slice(0,3).toUpperCase(),`hsl(${h},45%,38%)`];return`<span class="bd" style="background:${col}">${c}</span>`}
+let D,FL=[],tab='home',inj=true,mi=null,mt=null,lastFocus=null;const $=s=>document.querySelector(s);
+const IC={home:'<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',tro:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"/>',tgt:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',ch:'<path d="M9 6l6 6-6 6"/>',ck:'<path d="M5 12l5 5 9-10"/>',ball:'<circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 4.5h-5L8 10zM12 7V3M16 10l4-1.5M14.5 14.5L17 19M9.5 14.5L7 19M8 10L4 8.5"/>'};
+const ic=(n,c='')=>`<svg class="i ${c}" viewBox="0 0 24 24">${IC[n]}</svg>`;
+const STAR='<svg class="i f" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>';
 const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nm=t=>t.replace(/ (AFC|FC)$/,'').replace(/^AFC /,'');const pct=x=>Math.round(x*100)+'%';
+const pt={H:'เจ้าบ้านชนะ',D:'เสมอ',A:'เยือนชนะ'};
+const TC={arsenal:['ARS','#e03a3e'],'aston villa':['AVL','#8a2a4f'],bournemouth:['BOU','#c8102e'],brentford:['BRE','#e30613'],'brighton & hove albion':['BHA','#0057b8'],burnley:['BUR','#7a263a'],chelsea:['CHE','#034694'],'crystal palace':['CRY','#1b458f'],everton:['EVE','#003399'],fulham:['FUL','#555'],'leeds united':['LEE','#1d428a'],liverpool:['LIV','#c8102e'],'manchester city':['MCI','#4d8fc7'],'manchester united':['MUN','#da291c'],'newcastle united':['NEW','#444'],'nottingham forest':['NFO','#dd0000'],'tottenham hotspur':['TOT','#3a4a8a'],'west ham united':['WHU','#7a263a'],'wolverhampton wanderers':['WOL','#b8860b'],sunderland:['SUN','#d71920'],'coventry city':['COV','#3d8bc4'],'ipswich town':['IPS','#0b4ea2']};
+function badge(t,z=''){const k=nm(t).toLowerCase();const h=[...k].reduce((a,x)=>(a*31+x.charCodeAt(0))%360,7);const[c,col]=TC[k]||[nm(t).slice(0,3).toUpperCase(),`hsl(${h},45%,38%)`];return`<span class="bd ${z}" style="background:linear-gradient(145deg,${col},${col}cc)">${c}</span>`}
 const TZ={timeZone:'Asia/Bangkok'};
 const dayKey=f=>f[3]?new Date(f[3]).toLocaleDateString('en-CA',TZ):f[0];
 const dayTxt=f=>(f[3]?new Date(f[3]):new Date(f[0]+'T12:00:00Z')).toLocaleDateString('th-TH',{...TZ,weekday:'long',day:'numeric',month:'short'});
 const timeTxt=f=>f[3]?new Date(f[3]).toLocaleTimeString('th-TH',{...TZ,hour:'2-digit',minute:'2-digit'})+' น.':'';
-const ij=t=>{const i=D.inj[t];return i&&i.players.length?`<div class="m">🤕 ${nm(t)}: ${i.players.slice(0,3).map(x=>esc(x.n)).join(', ')}</div>`:''};
-const nws=t=>{const n=(D.news||{})[t];if(!n||!n.length)return'';const x=n[0];return`<div class="m">📰 ${esc(nm(t))}: <a style="color:#a5b4fc" href="${/^https?:/.test(x.l)?esc(x.l):'#'}" target="_blank" rel="noopener">${esc(x.t)}</a> ${x.s<0?'🔴':'🟢'}</div>`};
-function card(f){const[,h,a]=f,P=f[4],p=(inj&&P.i)?P.i:P.b,star=Math.max(p.w,p.d,p.l)>=.55?'<small>⭐</small>':'';
- const uk=f[3]?new Date(f[3]).toLocaleString('th-TH',{timeZone:'Europe/London',weekday:'short',hour:'2-digit',minute:'2-digit'}):'';
- return`<div class="c"><span class="dchip">${dayTxt(f)}${timeTxt(f)?' · '+timeTxt(f):''}</span>${uk?` <span class="m">(เวลาอังกฤษ ${uk})</span>`:''}
- <div class="row"><div class="tm">${badge(h)}<span>${nm(h)}</span></div><div class="sc">${star}${p.s[0]} - ${p.s[1]}</div><div class="tm r">${badge(a)}<span>${nm(a)}</span></div></div>
- <div class="bar"><div style="width:${p.w*100}%;background:var(--g)"></div><div style="width:${p.d*100}%;background:#5a6bb5"></div><div style="width:${p.l*100}%;background:var(--r)"></div></div>
- <div class="lg"><span>เหย้า ${pct(p.w)}</span><span>เสมอ ${pct(p.d)}</span><span>เยือน ${pct(p.l)}</span></div>
- <div class="m" style="margin-top:8px">ทาย: <b>${pt[p.k]}</b> · สกอร์ตรงกลางคือสกอร์ที่น่าจะเป็นที่สุดของผลนี้</div>
- <div class="m">สกอร์ที่มีโอกาสสูงสุดทีละสกอร์: ${p.t3.map(c=>`${c[0]}-${c[1]} (${pct(c[2])})`).join(' · ')}</div>
- <div class="m">สูงกว่า 2.5 ประตู ${pct(p.o)} · ทั้งคู่ได้ประตู ${pct(p.bt)} · ประตูคาด ${p.lh.toFixed(1)}-${p.la.toFixed(1)}</div>
- ${p.mk?`<div class="m">เจ้ามือให้: เหย้า ${pct(p.mk[0])} · เสมอ ${pct(p.mk[1])} · เยือน ${pct(p.mk[2])}</div>`:''}
- ${inj&&D.inj_ok?ij(h)+ij(a):''}${nws(h)}${nws(a)}</div>`}
-const F=()=>[...D.fx].sort((x,y)=>(x[3]||x[0]).localeCompare(y[3]||y[0]));
-const toggle=()=>D.inj_ok?`<label><input type="checkbox" ${inj?'checked':''} onchange="inj=this.checked;render()"> ปรับตามตัวเจ็บ</label>`:'<span class="m">⚠️ ยังไม่ได้ข้อมูลตัวเจ็บ ใช้สถิติล้วน</span>';
-const legend='<div class="m">⭐ = โมเดลมั่นใจ (ผลใดผลหนึ่งมีโอกาสเกิน 55%) · ทายล่วงหน้าเฉพาะสัปดาห์นี้ เพราะข่าวเปลี่ยนได้ตลอด</div>';
-function home(){const L=F();if(!L.length)return'<div class="c">ยังไม่มีแมตช์ในสัปดาห์นี้</div>';const k0=dayKey(L[0]),t=L.filter(f=>dayKey(f)===k0);
- return`<div class="hero"><h1>⚽ EPL ทายสกอร์</h1><div class="m">ข้อมูล ${D.n} นัด (${D.seasons.length} ฤดูกาล) · ผลล่าสุด ${D.last}</div></div>
- <h2>แมตช์ถัดไป: ${dayTxt(t[0])}<span class="pill">สัปดาห์นี้อีก ${L.length} แมตช์</span></h2>${toggle()}${legend}<div style="height:10px"></div>${t.map(card).join('')}
- <button class="pill" style="cursor:pointer" onclick="go('fx')">ดูโปรแกรมทั้งสัปดาห์ ›</button>`}
-function fxTab(){const L=F();let last='',o=`<h2>โปรแกรมสัปดาห์นี้</h2>${toggle()}${legend}<div style="height:10px"></div>`;
- if(!L.length)return o+'<div class="c">ยังไม่มีแมตช์ในสัปดาห์นี้</div>';
- for(const f of L){const k=dayKey(f);if(k!==last){last=k;o+=`<h2 style="font-size:14px;color:var(--mut)">${dayTxt(f)}</h2>`}o+=card(f)}return o}
-function tbl(n){const T=n?D.table.slice(0,n):D.table;return`<table><tr><th>#</th><th>ทีม</th><th>แข่ง</th>${n?'':'<th>ชนะ</th><th>เสมอ</th><th>แพ้</th><th>ได้</th><th>เสีย</th><th>ต่าง</th>'}<th>แต้ม</th></tr>`+T.map((r,i)=>`<tr><td>${i+1}</td><td><div class="tm2">${badge(r[0])}${nm(r[0])}</div></td><td>${r[1]}</td>${n?'':`<td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td><td>${r[6]}</td><td>${r[7]}</td>`}<td><b>${r[8]}</b></td></tr>`).join('')+'</table>'}
-const pt={H:'เจ้าบ้านชนะ',D:'เสมอ',A:'เยือนชนะ'};
+const ukTxt=f=>f[3]?new Date(f[3]).toLocaleString('th-TH',{timeZone:'Europe/London',weekday:'short',hour:'2-digit',minute:'2-digit'}):'';
+const pp=f=>inj&&f[4].i?f[4].i:f[4].b;const conf=p=>Math.max(p.w,p.d,p.l)>=.55;
+const injs=t=>((D.inj||{})[t]||{}).players||[];const nws=t=>(D.news||{})[t]||[];
+function bar(p){return`<div class="pb"><div class="h" data-w="${p.w*100}%"></div><div class="d" data-w="${p.d*100}%"></div><div class="a" data-w="${p.l*100}%"></div></div><div class="pl"><span>เหย้า <b>${pct(p.w)}</b></span><span>เสมอ <b>${pct(p.d)}</b></span><span>เยือน <b>${pct(p.l)}</b></span></div>`}
+function card(f,i,d=0){const[,h,a]=f,p=pp(f),ni=injs(h).length+injs(a).length,nn=nws(h).length+nws(a).length;
+ return`<article class="mc" style="animation-delay:${d*60}ms" tabindex="0" role="button" onclick="openMatch(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openMatch(${i})}">
+ <div class="mh"><span class="t">${timeTxt(f)||dayTxt(f)}</span>${ukTxt(f)?`<span>เวลาอังกฤษ ${ukTxt(f)}</span>`:''}<span class="sp"></span>${conf(p)?`<span class="cp conf">${STAR} มั่นใจ</span>`:''}</div>
+ <div class="vs"><div class="sd">${badge(h)}<span class="n">${esc(nm(h))}</span></div><div class="score"><span>${p.s[0]}</span><i>-</i><span>${p.s[1]}</span></div><div class="sd r">${badge(a)}<span class="n">${esc(nm(a))}</span></div></div>
+ ${bar(p)}
+ <div class="mf"><span class="cp">ทาย: ${pt[p.k]}</span><span class="cp">สูง 2.5 · ${pct(p.o)}</span><span class="cp">BTTS · ${pct(p.bt)}</span>${inj&&D.inj_ok&&ni?`<span class="cp warn">ตัวเจ็บ ${ni}</span>`:''}${nn?`<span class="cp news">ข่าว ${nn}</span>`:''}<span class="go">รายละเอียด ${ic('ch')}</span></div></article>`}
+const sw=()=>D.inj_ok?`<label class="sw"><input type="checkbox" ${inj?'checked':''} onchange="setInj(this.checked)"><span></span>ปรับตามตัวเจ็บ</label>`:'<span class="m">ยังไม่ได้ข้อมูลตัวเจ็บ ใช้สถิติล้วน</span>';
+const legend=`<div class="m" style="margin-top:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="cp conf">${STAR} มั่นใจ</span> ผลใดผลหนึ่งมีโอกาสเกิน 55% · ทายล่วงหน้าเฉพาะสัปดาห์นี้ เพราะข่าวเปลี่ยนได้ตลอด · แตะการ์ดเพื่อดูรายละเอียด</div>`;
+function home(){const acc=D.acc,B=D.bt.tb.full;
+ let o=`<div class="hero"><h1>ทายสกอร์ <span>พรีเมียร์ลีก</span></h1><div class="m">วิเคราะห์ด้วยสถิติ ${D.n} นัด · ${D.seasons.length} ฤดูกาล · ผลล่าสุด ${D.last}</div>
+ <div class="tiles"><div class="tile"><b>${B.acc}%</b><span>ผลถูก (ทดสอบ)</span></div><div class="tile"><b>${B.t3}%</b><span>สกอร์ใน Top-3</span></div><div class="tile"><b>${acc.n?acc.b+'/'+acc.n:'—'}</b><span>ทายจริงถูก</span></div></div></div>`;
+ if(!FL.length)return o+'<div class="c" style="margin-top:14px">ยังไม่มีแมตช์ในสัปดาห์นี้</div>';
+ const k0=dayKey(FL[0]),idx=FL.map((f,i)=>i).filter(i=>dayKey(FL[i])===k0);
+ o+=`<h2>แมตช์ถัดไป <small>${dayTxt(FL[0])}</small></h2><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">${sw()}<span class="m">สัปดาห์นี้อีก ${FL.length} แมตช์</span></div>${legend}<div style="height:14px"></div>${idx.map((i,n)=>card(FL[i],i,n)).join('')}
+ <button class="bt2" onclick="go('fx')">ดูโปรแกรมทั้งสัปดาห์ ${ic('ch')}</button>`;return o}
+function fxTab(){let last='',o=`<h2>โปรแกรมสัปดาห์นี้ <small>${FL.length} แมตช์</small></h2>${sw()}${legend}`;
+ if(!FL.length)return o+'<div class="c">ยังไม่มีแมตช์ในสัปดาห์นี้</div>';
+ FL.forEach((f,i)=>{const k=dayKey(f);if(k!==last){last=k;o+=`<h3>${dayTxt(f)}</h3>`}o+=card(f,i,i%6)});return o}
+function tbl(n){const T=n?D.table.slice(0,n):D.table,L=D.table.length;return`<table><tr><th>#</th><th class="tl">ทีม</th><th>แข่ง</th>${n?'':'<th>ช</th><th>ส</th><th>พ</th><th>ได้</th><th>เสีย</th><th>+/-</th>'}<th>แต้ม</th></tr>`+T.map((r,i)=>`<tr class="cl ${i<4?'z1':i==4?'z2':i>=L-3?'z3':''}" onclick="openTeam(${i})"><td>${i+1}</td><td><div class="tm2">${badge(r[0],'s')}${esc(nm(r[0]))}</div></td><td>${r[1]}</td>${n?'':`<td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td><td>${r[6]}</td><td>${r[7]>0?'+':''}${r[7]}</td>`}<td><b>${r[8]}</b></td></tr>`).join('')+'</table>'}
+const tbTab=()=>`<h2>อันดับคะแนน</h2><div class="c" style="overflow-x:auto;padding:10px">${tbl(0)}</div><div class="m"><span style="color:var(--win)">▌</span> 4 อันดับแรก <span style="color:var(--ac2)">▌</span> อันดับ 5 <span style="color:var(--ls)">▌</span> โซนตกชั้น · แตะทีมเพื่อดูรายละเอียด</div>`;
 const BM=()=>D.bt.tb.full;
 const nmk=k=>k==0?'โมเดลเรา 100%':k==1?'เจ้ามือ 100%':'เจ้ามือ '+Math.round(k*100)+'%';
 function blendBox(){const B=D.bt,ks=Object.keys(B.blend||{}).sort((a,b)=>a-b);
  if(!ks.length)return`<div class="c"><b>ราคาเจ้ามือ</b><div class="m">${B.odds_tested?'ข้อมูลราคาไม่พอให้ทดสอบ':'ยังดึงราคาเจ้ามือจาก football-data.co.uk ไม่ได้ ระบบใช้โมเดลของเราล้วน'}</div></div>`;
- return`<div class="c"><b>ผสมราคาเจ้ามือ</b><div class="m">ทดสอบ ${B.blend[ks[0]].n} นัดที่มีราคา · ระบบเลือก (สูงสุด 75%): <b>${nmk(B.P.lam)}</b></div><div style="overflow-x:auto"><table><tr><th style="text-align:left">สัดส่วน</th><th>ผลถูก</th><th>เป๊ะ</th><th>Top-3</th><th>log</th></tr>${ks.map(k=>{const v=B.blend[k];return`<tr style="${+k===B.P.lam?'color:#a5b4fc;font-weight:700':''}"><td style="text-align:left">${nmk(+k)}</td><td>${v.acc}%</td><td>${v.ex}%</td><td>${v.t3}%</td><td>${v.ll}</td></tr>`}).join('')}</table></div><div class="m" style="margin-top:6px">ราคาในอดีตเป็นราคาใกล้เวลาเตะ ราคาที่ใช้ทายล่วงหน้าอาจออกก่อนหลายวันจึงอาจแม่นน้อยกว่าตัวเลขนี้</div></div>`}
+ return`<div class="c"><b>ผสมราคาเจ้ามือ</b><div class="m">ทดสอบ ${B.blend[ks[0]].n} นัดที่มีราคา · ระบบเลือก (สูงสุด 75%): <b style="color:var(--fg)">${nmk(B.P.lam)}</b></div><div style="overflow-x:auto"><table><tr><th class="tl">สัดส่วน</th><th>ผลถูก</th><th>เป๊ะ</th><th>Top-3</th><th>log</th></tr>${ks.map(k=>{const v=B.blend[k];return`<tr style="${+k===B.P.lam?'color:#c4baff;font-weight:700':''}"><td class="tl">${nmk(+k)}</td><td>${v.acc}%</td><td>${v.ex}%</td><td>${v.t3}%</td><td>${v.ll}</td></tr>`}).join('')}</table></div><div class="m" style="margin-top:8px">ราคาในอดีตเป็นราคาใกล้เวลาเตะ ราคาที่ใช้ทายล่วงหน้าอาจออกก่อนหลายวันจึงอาจแม่นน้อยกว่าตัวเลขนี้</div></div>`}
 function setBox(){const B=D.bt,P=B.P,no='ไม่ใช้ (ทดสอบแล้วไม่ช่วย)',yn=v=>v?'ใช้':no;
  const R=[['ครึ่งชีวิตของข้อมูล (จูนเอง)',P.hl+' วัน'],['ถ่วงด้วยสถิติยิงประตู/ยิงตรงกรอบ',P.g?Math.round(P.g*100)+'%':(B.shots_tested?no:'ยังไม่มีข้อมูลยิง')],['ตัวแก้ Dixon-Coles',yn(P.dc)],['ค่าเจ้าบ้านรายทีม',yn(P.hf)],['ปรับตามวันพัก',P.rc?'ใช้ ('+P.rc+')':no],['ผสมโมเดล Elo',P.eps?Math.round(P.eps*100)+'%':no],['ผสมราคาเจ้ามือ',P.lam?Math.round(P.lam*100)+'%':(B.odds_tested?no:'ยังไม่มีราคา')],['ค่าถ่วงตัวเจ็บ',D.coef+(D.ncoef>=40?' (จูนจาก '+D.ncoef+' นัด)':' (ค่าตั้งต้น รอผลถึง 40 นัด)')],['ข่าวจาก RSS','แสดงอย่างเดียว ไม่ปรับสกอร์']];
  return`<div class="c"><b>ระบบเลือกใช้อะไรบ้าง</b><div class="m">ทุกตัวเลือกต้องชนะ backtest ชัดเจนถึงจะถูกใช้ ถ้าไม่ช่วยจะถูกปิดเอง</div>${R.map(r=>`<div class="k"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('')}</div>`}
+const okx=v=>v?`<span class="ok">${ic('ck')}</span>`:`<span class="no">${ic('x')}</span>`;
 function accTab(){const a=D.acc,B=D.bt,T=B.tb;
  const rows=[['ผลแพ้/เสมอ/ชนะถูก','acc','%'],['สกอร์เป๊ะ','ex','%'],['สกอร์จริงอยู่ใน Top-3','t3','%'],['สูง/ต่ำ 2.5 ถูก','ou','%'],['ทั้งคู่ได้ประตู (BTTS) ถูก','bt','%'],['คลาดเคลื่อนประตูรวม (น้อย=ดี)','mae',' ประตู'],['คะแนน log ของสกอร์จริง (ใกล้ 0 = ดี)','ll','']];
- let o=`<h2>ความแม่น</h2><div class="c"><b>ทดสอบเดินหน้า ${B.n} นัด</b><div class="m">ฝึกด้วยข้อมูลก่อนแต่ละช่วงแล้วทายช่วงนั้น ไม่แอบดูเฉลย (ยังไม่รวมราคาเจ้ามือ)<br>ตัวเลือกของระบบถูกเลือกจากชุดทดสอบนี้เอง ตัวเลขจึงอาจดูดีเกินจริงเล็กน้อย ผลทายจริงด้านล่างเชื่อถือได้กว่าเมื่อสะสมครบ 40 นัด</div>
- <div style="overflow-x:auto"><table><tr><th style="text-align:left">ตัวชี้วัด</th><th>ค่าเฉลี่ยลีก</th><th>Poisson</th><th>โมเดลเต็ม</th></tr>${rows.map(r=>`<tr><td style="text-align:left">${r[0]}</td>${['base','po','full'].map(k=>`<td>${T[k][r[1]]}${r[2]}</td>`).join('')}</tr>`).join('')}</table></div>
+ let o=`<h2>ความแม่น</h2><div class="tiles" style="margin:0 0 12px"><div class="tile"><b>${T.full.acc}%</b><span>ผลถูก</span></div><div class="tile"><b>${T.full.t3}%</b><span>สกอร์ใน Top-3</span></div><div class="tile"><b>${T.full.ex}%</b><span>สกอร์เป๊ะ</span></div></div>
+ <div class="c"><b>ทดสอบเดินหน้า ${B.n} นัด</b><div class="m">ฝึกด้วยข้อมูลก่อนแต่ละช่วงแล้วทายช่วงนั้น ไม่แอบดูเฉลย (ยังไม่รวมราคาเจ้ามือ)<br>ตัวเลือกของระบบถูกเลือกจากชุดทดสอบนี้เอง ตัวเลขจึงอาจดูดีเกินจริงเล็กน้อย ผลทายจริงด้านล่างเชื่อถือได้กว่าเมื่อสะสมครบ 40 นัด</div>
+ <div style="overflow-x:auto;margin-top:6px"><table><tr><th class="tl">ตัวชี้วัด</th><th>ค่าเฉลี่ยลีก</th><th>Poisson</th><th>โมเดลเต็ม</th></tr>${rows.map(r=>`<tr><td class="tl">${r[0]}</td>${['base','po','full'].map(k=>`<td>${T[k][r[1]]}${r[2]}</td>`).join('')}</tr>`).join('')}</table></div>
  <div class="m" style="margin-top:8px">"ค่าเฉลี่ยลีก" คือโมเดลเปล่าที่ไม่รู้จักทีมเลย ใช้เป็นเส้นฐานว่าความรู้เรื่องทีมช่วยได้แค่ไหน</div></div>${blendBox()}${setBox()}<div class="c"><b>ผลทายจริงของแอปนี้</b>`;
  if(!a.n)o+='<div class="m">ยังไม่มีแมตช์ที่ทายแล้วแข่งจบ</div>';else o+=`<div class="k"><span>ตรวจแล้ว</span><b>${a.n} นัด</b></div><div class="k"><span>ผลถูก (สถิติล้วน)</span><b>${Math.round(a.b/a.n*100)}%</b></div>${a.ni?`<div class="k"><span>ผลถูก (รวมตัวเจ็บ ${a.ni} นัด)</span><b>${Math.round(a.i/a.ni*100)}%</b></div>`:''}<div class="k"><span>สกอร์เป๊ะ</span><b>${Math.round(a.eb/a.n*100)}%</b></div>${a.nt?`<div class="k"><span>สกอร์อยู่ใน Top-3 (${a.nt} นัด)</span><b>${Math.round(a.t3/a.nt*100)}%</b></div>`:''}`;
- return o+'</div>'+D.hist.map(h=>`<div class="c"><div class="m">${h.d}</div><div class="row"><div class="tm">${badge(h.h)}<span>${nm(h.h)}</span></div><div class="sc">${h.x} - ${h.y}</div><div class="tm r">${badge(h.a)}<span>${nm(h.a)}</span></div></div><div class="m" style="margin-top:8px">ทาย: ${pt[h.pb]} (สกอร์ ${h.b[0]}-${h.b[1]}) ${h.okb?'✅':'❌'}${h.h3===true?' · สกอร์อยู่ใน Top-3 ✅':''}${h.pi?` · รวมตัวเจ็บ: ${pt[h.pi]} ${h.oki?'✅':'❌'}`:''} · ผลจริง: ${pt[h.r]}</div></div>`).join('')}
+ o+='</div>';if(D.hist.length)o+='<h3>ประวัติผลทาย</h3>';
+ return o+D.hist.map(h=>`<div class="c"><div class="m">${h.d}</div><div class="vs" style="margin-top:6px"><div class="sd">${badge(h.h,'s')}<span class="n">${esc(nm(h.h))}</span></div><div class="score" style="font-size:24px;padding:5px 12px">${h.x}<i>-</i>${h.y}</div><div class="sd r">${badge(h.a,'s')}<span class="n">${esc(nm(h.a))}</span></div></div><div class="m" style="margin-top:10px">ทาย: ${pt[h.pb]} (สกอร์ ${h.b[0]}-${h.b[1]}) ${okx(h.okb)}${h.h3===true?' · สกอร์อยู่ใน Top-3 '+okx(1):''}${h.pi?` · รวมตัวเจ็บ: ${pt[h.pi]} ${okx(h.oki)}`:''} · ผลจริง: ${pt[h.r]}</div></div>`).join('')}
 function right(){const a=D.acc,u=D.updated_at.split(' ');const d=new Date(u[0]+'T00:00:00').toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
- return`<div class="c"><b>🏆 อันดับคะแนน</b>${tbl(5)}<button class="pill" style="cursor:pointer;margin-top:8px" onclick="go('tb')">ดูทั้งหมด ›</button></div>
- <div class="c"><b>🎯 ความแม่นของระบบ</b><div class="k"><span>ทดสอบเดินหน้า ผลถูก</span><b>${BM().acc}%</b></div><div class="k"><span>สกอร์ใน Top-3</span><b>${BM().t3}%</b></div><div class="k"><span>ทายจริงถูก</span><b>${a.n?a.b+' / '+a.n:'รอผล'}</b></div><button class="pill" style="cursor:pointer;margin-top:8px" onclick="go('acc')">รายละเอียด ›</button></div>
- <div class="c"><b>🕒 อัปเดตล่าสุด</b><div style="font-size:18px;margin:6px 0">${d} ${u[1]} น.</div><div class="m">เวลาไทย · อัปเดตอัตโนมัติทุกวัน ~10:00 และวันพฤหัส/ศุกร์ ~16:00 (อาจเลื่อนได้ราว 10-30 นาที)</div></div>`}
-const TABS={home:['🏠','หน้าแรก',home],fx:['📅','โปรแกรม',fxTab],tb:['🏆','อันดับ',()=>`<h2>อันดับคะแนน</h2><div class="c" style="overflow-x:auto">${tbl(0)}</div>`],acc:['🎯','ความแม่น',accTab]};
+ return`<div class="c" style="padding:12px 12px 8px"><b style="padding:4px 4px 6px;display:block">อันดับคะแนน</b>${tbl(5)}<button class="bt2" style="margin:10px 4px 4px" onclick="go('tb')">ดูทั้งหมด ${ic('ch')}</button></div>
+ <div class="c"><b>ความแม่นของระบบ</b><div class="k"><span>ทดสอบเดินหน้า ผลถูก</span><b>${BM().acc}%</b></div><div class="k"><span>สกอร์ใน Top-3</span><b>${BM().t3}%</b></div><div class="k"><span>ทายจริงถูก</span><b>${a.n?a.b+' / '+a.n:'รอผล'}</b></div><button class="bt2" style="margin-top:8px" onclick="go('acc')">รายละเอียด ${ic('ch')}</button></div>
+ <div class="c"><b><span class="live"></span>อัปเดตล่าสุด</b><div style="font:600 19px var(--fn);margin:8px 0 4px">${d} · ${u[1]} น.</div><div class="m">เวลาไทย · อัปเดตอัตโนมัติทุกวัน ~10:00 และวันพฤหัส/ศุกร์ ~16:00 (อาจเลื่อนได้ราว 10-30 นาที)</div></div>`}
+const TABS={home:['home','หน้าแรก',home],fx:['cal','โปรแกรม',fxTab],tb:['tro','อันดับ',tbTab],acc:['tgt','ความแม่น',accTab]};
+function anim(){requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll('[data-w]').forEach(e=>{e.style.width=e.dataset.w})))}
 function go(t){tab=t;render();scrollTo(0,0)}
-function render(){const nv=Object.entries(TABS).map(([k,v])=>`<button class="${k===tab?'on':''}" onclick="go('${k}')">${v[0]} ${v[1]}</button>`).join('');
- $('#side').innerHTML='<div class="brand">⚽ EPL ทายสกอร์<small>ทายล่วงหน้าวีคต่อวีค</small></div>'+nv;$('#bnav').innerHTML=nv;$('#main').innerHTML=TABS[tab][2]();$('#right').innerHTML=right()}
-fetch('data.json?'+Date.now()).then(r=>r.json()).then(d=>{D=d;render()}).catch(e=>$('#main').innerHTML='โหลดข้อมูลไม่สำเร็จ: '+e);
+function setInj(v){inj=v;render();if(mi!==null)modalMatch(mi,true)}
+function render(){const nv=Object.entries(TABS).map(([k,v])=>`<button class="nv ${k===tab?'on':''}" onclick="go('${k}')">${ic(v[0])}<span>${v[1]}</span></button>`).join('');
+ $('#side').innerHTML=`<div class="brand"><div class="mk">${ic('ball')}</div><div><b>EPL ทายสกอร์</b><small>ทายล่วงหน้าวีคต่อวีค</small></div></div>`+nv;$('#bnav').innerHTML=nv;$('#main').innerHTML=TABS[tab][2]();$('#right').innerHTML=right();anim()}
+// ---------- pop-up ----------
+function showM(html){lastFocus=document.activeElement;$('#mb').innerHTML=html;const o=$('#ov');o.hidden=false;document.body.style.overflow='hidden';requestAnimationFrame(()=>{o.classList.add('open');anim();const x=o.querySelector('.x');x&&x.focus()})}
+function closeM(){const o=$('#ov');o.classList.remove('open');document.body.style.overflow='';mi=null;setTimeout(()=>{o.hidden=true},220);lastFocus&&lastFocus.focus&&lastFocus.focus()}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#ov').hidden)closeM()});
+const plist=t=>{const L=injs(t);return`<h3>ตัวเจ็บ/ไม่พร้อม · ${esc(nm(t))}</h3>`+(L.length?L.map(x=>`<div class="pl-i"><b>${esc(x.n)}</b>${x.news?`<span>${esc(x.news)}</span>`:''}</div>`).join(''):'<div class="m">ไม่มีรายงาน</div>')};
+const nlist=t=>nws(t).map(x=>`<div class="pl-i"><a href="${/^https?:/.test(x.l)?esc(x.l):'#'}" target="_blank" rel="noopener">${esc(x.t)}</a><span>${esc(nm(t))} · ${x.s<0?'ข่าวร้าย':'ข่าวดี'} · ${esc(x.src||'')}</span></div>`).join('');
+function openMatch(i){mi=i;modalMatch(i)}
+function modalMatch(i,keep){const f=FL[i],[,h,a]=f,p=pp(f),mx=Math.max(...p.t3.map(c=>c[2]));
+ const mk=p.mk?`<h3>เทียบราคาเจ้ามือ</h3><table><tr><th></th><th>เหย้า</th><th>เสมอ</th><th>เยือน</th></tr><tr><td class="tl">โมเดลเรา</td><td>${pct(p.w)}</td><td>${pct(p.d)}</td><td>${pct(p.l)}</td></tr><tr><td class="tl">เจ้ามือ</td><td>${pct(p.mk[0])}</td><td>${pct(p.mk[1])}</td><td>${pct(p.mk[2])}</td></tr></table>`:'';
+ const ns=nlist(h)+nlist(a);
+ const html=`<div class="m">${dayTxt(f)} · ${timeTxt(f)}${ukTxt(f)?' (อังกฤษ '+ukTxt(f)+')':''}</div>
+ <div class="big"><div onclick="closeM();setTimeout(()=>openTeam(${tix(h)}),260)">${badge(h,'l')}<span class="n">${esc(nm(h))}</span></div><div class="score"><span>${p.s[0]}</span><i>-</i><span>${p.s[1]}</span></div><div onclick="closeM();setTimeout(()=>openTeam(${tix(a)}),260)">${badge(a,'l')}<span class="n">${esc(nm(a))}</span></div></div>
+ <div style="text-align:center;margin-bottom:4px"><span class="cp ${conf(p)?'conf':''}">${conf(p)?STAR+' ':''}ทาย: ${pt[p.k]}</span></div>
+ ${bar(p)}<div style="margin-top:14px">${sw()}</div>
+ <h3>สกอร์ที่มีโอกาสสูงสุด</h3><div class="bars">${p.t3.map(c=>`<div class="br"><span>${c[0]} - ${c[1]}</span><div class="tr"><i data-w="${c[2]/mx*100}%"></i></div><b>${pct(c[2])}</b></div>`).join('')}</div>
+ <div class="m">สกอร์ตรงกลางคือสกอร์ที่น่าจะเป็นที่สุดภายใต้ผลที่ทาย ส่วนรายการนี้คือสกอร์ที่มีโอกาสสูงสุดทีละสกอร์</div>
+ <h3>ตลาดประตู</h3><div class="g2"><div class="tile"><b>${pct(p.o)}</b><span>สูงกว่า 2.5 ประตู</span></div><div class="tile"><b>${pct(p.bt)}</b><span>ทั้งคู่ได้ประตู</span></div><div class="tile"><b>${p.lh.toFixed(1)}-${p.la.toFixed(1)}</b><span>ประตูที่คาด</span></div></div>
+ ${mk}${D.inj_ok?plist(h)+plist(a):''}${ns?'<h3>ข่าวที่เกี่ยวข้อง</h3>'+ns+'<div class="m" style="margin-top:6px">ข่าวแสดงเพื่อประกอบเท่านั้น ยังไม่ถูกนำไปปรับสกอร์</div>':''}`;
+ if(keep){const y=$('.sh').scrollTop;$('#mb').innerHTML=html;$('.sh').scrollTop=y;anim()}else showM(html)}
+const tix=t=>D.table.findIndex(r=>r[0]===t);
+function openTeam(k){const r=D.table[k];if(!r)return;const t=r[0];
+ const fx=FL.map((f,i)=>[f,i]).filter(([f])=>f[1]===t||f[2]===t);
+ showM(`<div style="display:flex;align-items:center;gap:14px;margin:4px 0 14px">${badge(t,'l')}<div><div style="font:700 21px var(--fh)">${esc(nm(t))}</div><div class="m">อันดับ ${k+1} ของตาราง</div></div></div>
+ <div class="g2" style="grid-template-columns:repeat(4,1fr)">${[['แข่ง',r[1]],['ชนะ',r[2]],['เสมอ',r[3]],['แพ้',r[4]],['ได้',r[5]],['เสีย',r[6]],['+/-',(r[7]>0?'+':'')+r[7]],['แต้ม',r[8]]].map(([a,b])=>`<div class="tile"><b style="font-size:19px">${b}</b><span>${a}</span></div>`).join('')}</div>
+ <h3>แมตช์สัปดาห์นี้</h3>${fx.length?fx.map(([f,i])=>{const p=pp(f);return`<div class="k" style="cursor:pointer" onclick="closeM();setTimeout(()=>openMatch(${i}),260)"><span>${esc(nm(f[1]))} - ${esc(nm(f[2]))}<br><span class="m">${dayTxt(f)} ${timeTxt(f)}</span></span><b>${p.s[0]}-${p.s[1]}</b></div>`}).join(''):'<div class="m">ไม่มีแมตช์ในสัปดาห์นี้</div>'}
+ ${D.inj_ok?plist(t):''}${nws(t).length?'<h3>ข่าวที่เกี่ยวข้อง</h3>'+nlist(t):''}`)}
+$('.x').innerHTML=ic('x');
+fetch('data.json?'+Date.now()).then(r=>r.json()).then(d=>{D=d;inj=!!d.inj_ok;FL=[...d.fx].sort((x,y)=>(x[3]||x[0]).localeCompare(y[3]||y[0]));render()}).catch(e=>$('#main').innerHTML='<div class="c">โหลดข้อมูลไม่สำเร็จ: '+esc(e)+'</div>');
 </script></body></html>
