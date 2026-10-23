@@ -16,6 +16,7 @@ for s in SEASONS:
         d=dt.date.fromisoformat(m['date'])
         if ft:M.append((d,m['team1'],m['team2'],ft[0],ft[1]))
         else:FX.append((d,m['team1'],m['team2']))
+M_OF=[m for m in M if m[0]>=dt.date(y0,7,1)]  # ผลจาก openfootball ไว้เป็นตัวสำรอง
 CANON={t for _,h,a,_,_ in M for t in(h,a)}|{t for _,h,a in FX for t in(h,a)}
 def strip(n):return re.sub(r'\s+',' ',re.sub(r'\b(AFC|FC)\b','',n).replace('&','and')).strip().lower()
 ALIAS={'man city':'manchester city','man utd':'manchester united','spurs':'tottenham hotspur','wolves':'wolverhampton wanderers',"nott'm forest":'nottingham forest','brighton':'brighton and hove albion','newcastle':'newcastle united','west ham':'west ham united','leeds':'leeds united','leicester':'leicester city','ipswich':'ipswich town','norwich':'norwich city','sheffield utd':'sheffield united','luton':'luton town','man united':'manchester united','tottenham':'tottenham hotspur','west brom':'west bromwich albion','cardiff':'cardiff city','huddersfield':'huddersfield town','stoke':'stoke city','swansea':'swansea city','hull':'hull city','norwich':'norwich city','millwall':'millwall'}
@@ -310,13 +311,23 @@ LAM=P['lam'] if ODDS else 0.0
 print('params',P)
 # ---------- ผลทายที่บันทึกไว้ + จูนค่าถ่วงตัวเจ็บจากผลจริงที่สะสม ----------
 LP=DATA+'/predictions.json';log=json.load(open(LP)) if os.path.exists(LP) else {}
-res={f'{d}|{h}|{a}':(x,y) for d,h,a,x,y in M}
+RP=DATA+'/results.json';store=json.load(open(RP)) if os.path.exists(RP) else {}
+for d,h,a,x,y in M_OF:store.setdefault(f'{d}|{h}|{a}',[x,y])  # ผลสำรองจาก openfootball (ไม่ทับของเดิม)
+store.update({f'{d}|{h}|{a}':[x,y] for d,h,a,x,y in M if d>=dt.date(y0,7,1)})  # ผลล่าสุดจากแหล่งหลักทับได้
+json.dump(store,open(RP,'w'),ensure_ascii=False)
+res={k:tuple(v) for k,v in store.items()}
+def lookup(k,v):  # หาผลจริงของนัดที่ทายไว้ ยอมให้วันที่คลาด ±3 วัน (เผื่อเลื่อนแข่ง/เขตเวลา)
+    if k in res:return res[k]
+    d0=dt.date.fromisoformat(v['d'])
+    for off in(1,-1,2,-2,3,-3):
+        kk=f"{d0+dt.timedelta(off)}|{v['h']}|{v['a']}"
+        if kk in res:return res[kk]
 def final_G(raw,sh=None,coef=0.0):
     lh,la=raw['lh'],raw['la']
     if sh:lh*=(1-coef*sh[0])*(1+coef*sh[3]);la*=(1-coef*sh[2])*(1+coef*sh[1])
     return mix(grid(lh,la,raw['rho']),raw['el'],raw['mk'],raw['eps'],raw['lam'])
 def coef_pick():
-    rows=[(v,res[k]) for k,v in log.items() if k in res and v.get('raw') and v.get('sh')]
+    rows=[(v,rr) for k,v in log.items() for rr in [lookup(k,v)] if rr and v.get('raw') and v.get('sh')]
     if len(rows)<40:return 0.5,len(rows)
     sc={c:sum(math.log(max(final_G(v['raw'],v['sh'],c)[min(x,9)][min(y,9)],1e-9)) for v,(x,y) in rows) for c in(0,.25,.5,.75,1.0)}
     b=0
@@ -344,8 +355,9 @@ for (d,h,a),p in PRED.items():
 json.dump(log,open(LP,'w'),ensure_ascii=False,indent=0)
 hist=[];ST=dict(n=0,b=0,i=0,ni=0,eb=0,ei=0,nt=0,t3=0)
 for k,v in sorted(log.items(),reverse=True):
-    if k in res:
-        x,y=res[k];r=res3(x,y);ST['n']+=1;ST['b']+=pick(v['b'])==r;ST['eb']+=tuple(v['b']['s'])==(x,y);h3=None
+    rr=lookup(k,v)
+    if rr:
+        x,y=rr;r=res3(x,y);ST['n']+=1;ST['b']+=pick(v['b'])==r;ST['eb']+=tuple(v['b']['s'])==(x,y);h3=None
         if 't3' in v['b']:h3=any((c[0],c[1])==(x,y) for c in v['b']['t3']);ST['nt']+=1;ST['t3']+=h3
         if v['i']:ST['ni']+=1;ST['i']+=pick(v['i'])==r;ST['ei']+=tuple(v['i']['s'])==(x,y)
         hist.append(dict(d=v['d'],h=v['h'],a=v['a'],x=x,y=y,b=v['b']['s'],i=v['i']['s'] if v['i'] else None,okb=pick(v['b'])==r,oki=bool(v['i']) and pick(v['i'])==r,pb=pick(v['b']),pi=pick(v['i']) if v['i'] else None,r=r,h3=h3))
